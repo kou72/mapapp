@@ -35,7 +35,7 @@ jobs:
         run: |
           touch .env.local
           echo VUE_APP_MAPS_API_KEY=${{ secrets.VUE_APP_MAPS_API_KEY }} >> .env.local
-          echo .env.local
+          cat .env.local
         working-directory: ./front
 
       # ビルドする
