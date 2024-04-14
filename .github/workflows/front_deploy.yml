@@ -30,12 +30,17 @@ jobs:
         run: npm ci
         working-directory: ./front
 
+      # .envファイルを作成する
+      - name: Create .rnv.local
+        run: |
+          touch .env.local
+          echo VUE_APP_MAPS_API_KEY=${{ secrets.VUE_APP_MAPS_API_KEY }} >> .env.local
+        working-directory: ./front
+
       # ビルドする
       - name: Build
         run: npm run build
         working-directory: ./front
-        env:
-          VUE_APP_MAPS_API_KEY: ${{ secrets.VUE_APP_MAPS_API_KEY }}
 
       # AWSへ接続する
       - name: Assuming AWS role with OIDC
