@@ -33,6 +33,7 @@ jobs:
       # .envファイルを作成する
       - name: Create .env.local
         run: |
+          pwd
           touch .env.local
           echo VUE_APP_MAPS_API_KEY=${{ secrets.vue_app_maps_api_key }} >> .env.local
           cat .env.local
