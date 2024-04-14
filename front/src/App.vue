@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import GoogleMap, { Center, Pin } from "./components/GoogleMap.vue";
+import PinList from "./components/PinList.vue";
 
 const center: Center = { lat: 35.6812362, lng: 139.7645445 };
 const pins: Pin[] = [
@@ -36,19 +37,7 @@ const pins: Pin[] = [
       <GoogleMap :center="center" :pins="pins" />
     </v-col>
     <v-col cols="4" class="align-center">
-      <v-card>
-        <v-list>
-          <v-list-item-group>
-            <v-list-item v-for="pin in pins" :key="pin.id">
-              <v-list-item-content>
-                {{ pin.group }}
-                {{ pin.name }}
-                {{ pin.position }}
-              </v-list-item-content>
-            </v-list-item>
-          </v-list-item-group>
-        </v-list>
-      </v-card>
+      <PinList :pins="pins"></PinList>
     </v-col>
   </v-row>
 </template>
