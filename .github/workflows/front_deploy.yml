@@ -34,7 +34,7 @@ jobs:
       - name: Create .env.local
         run: |
           touch .env.local
-          echo VUE_APP_MAPS_API_KEY=${{ secrets.VUE_APP_MAPS_API_KEY }} >> .env.local
+          echo VUE_APP_MAPS_API_KEY=${{ secrets.vue_app_maps_api_key }} >> .env.local
           cat .env.local
         working-directory: ./front
 
