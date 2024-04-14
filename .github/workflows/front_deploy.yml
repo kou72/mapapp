@@ -31,10 +31,11 @@ jobs:
         working-directory: ./front
 
       # .envファイルを作成する
-      - name: Create .rnv.local
+      - name: Create .env.local
         run: |
           touch .env.local
           echo VUE_APP_MAPS_API_KEY=${{ secrets.VUE_APP_MAPS_API_KEY }} >> .env.local
+          echo .env.local
         working-directory: ./front
 
       # ビルドする
