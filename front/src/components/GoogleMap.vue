@@ -8,6 +8,7 @@ export interface Center {
 }
 
 export interface Pin {
+  id: number;
   name: string;
   group: string;
   position: { lat: number; lng: number };
@@ -52,7 +53,7 @@ onMounted(async () => {
 
 <style>
 #map {
-  height: 100vh;
+  height: 90vh;
   width: 100%;
 }
 </style>

@@ -10,7 +10,8 @@
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.6",
     "core-js": "^3.8.3",
-    "vue": "^3.2.13"
+    "vue": "^3.2.13",
+    "vuetify": "^3.5.15"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.4.0",
@@ -25,6 +26,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vue": "^8.0.3",
     "prettier": "^2.4.1",
-    "typescript": "~4.5.5"
+    "typescript": "^4.9.5"
   }
 }
