@@ -1,27 +1,38 @@
-<template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
-</template>
+<script setup lang="ts">
+import { onMounted } from "vue";
+import { Loader } from "@googlemaps/js-api-loader";
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
+onMounted(async () => {
+  const loader = new Loader({
+    apiKey: process.env.VUE_APP_MAPS_API_KEY,
+    version: "weekly",
+  });
 
-export default defineComponent({
-  name: "App",
-  components: {
-    HelloWorld,
-  },
+  await loader
+    .load()
+    .then((google) => {
+      const mapElement = document.getElementById("map") as HTMLElement;
+      const map = new google.maps.Map(mapElement, {
+        center: { lat: 41.90476224706472, lng: 12.49822074385094 },
+        zoom: 4,
+      });
+      const marker = new google.maps.Marker({
+        position: { lat: 41.90476224706472, lng: 12.49822074385094 },
+        map: map,
+      });
+      console.log(map);
+    })
+    .catch((error) => console.log(error));
 });
 </script>
 
+<template>
+  <div id="map"></div>
+</template>
+
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+#map {
+  height: 100vh;
+  width: 100%;
 }
 </style>
