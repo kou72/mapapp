@@ -53,13 +53,13 @@ const loadeMapsLibrary = async () => {
     libraries: ["places"],
   });
   const { Map } = await loader.importLibrary("maps");
-  const { AdvancedMarkerElement } = await loader.importLibrary("marker");
   const { PinElement } = await loader.importLibrary("marker");
-  return { Map, AdvancedMarkerElement, PinElement };
+  const { AdvancedMarkerElement } = await loader.importLibrary("marker");
+  return { Map, PinElement, AdvancedMarkerElement };
 };
 
 onMounted(async () => {
-  const { Map, AdvancedMarkerElement, PinElement } = await loadeMapsLibrary();
+  const { Map, PinElement, AdvancedMarkerElement } = await loadeMapsLibrary();
   const mapElement = document.getElementById("map") as HTMLElement;
 
   const map = new Map(mapElement, {
