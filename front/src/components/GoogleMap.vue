@@ -33,7 +33,9 @@ const mapMount = async (center: Center, pins: Pin[]) => {
   const map = new google.maps.Map(mapElement, {
     center: center,
     zoom: 12,
+    mapId: process.env.VUE_APP_MAP_ID,
   });
+
   for (let pin of pins) {
     new google.maps.Marker({
       position: pin.position,
