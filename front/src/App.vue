@@ -14,18 +14,21 @@ const pins: Pin[] = [
     id: 2,
     name: "新宿駅",
     group: "お気に入り",
+    color: "blue",
     position: { lat: 35.6896342, lng: 139.700645 },
   },
   {
     id: 3,
     name: "品川駅",
     group: "お気に入り",
+    color: "green",
     position: { lat: 35.62876, lng: 139.738308 },
   },
   {
     id: 4,
     name: "池袋駅",
     group: "お気に入り",
+    color: "yellow",
     position: { lat: 35.729799, lng: 139.710052 },
   },
 ];
