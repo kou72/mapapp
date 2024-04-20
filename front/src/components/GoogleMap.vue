@@ -1,64 +1,81 @@
-<script setup lang="ts">
-import { onMounted, defineProps } from "vue";
-import { Loader } from "@googlemaps/js-api-loader";
-
+<script lang="ts">
 export interface Center {
   lat: number;
   lng: number;
 }
 
+type ColorCode = "red" | "blue" | "green" | "yellow";
 export interface Pin {
   id: number;
   name: string;
   group: string;
+  color?: ColorCode;
   position: { lat: number; lng: number };
 }
+</script>
 
-const props = defineProps({
-  center: Object,
-  pins: Array,
-});
+<script setup lang="ts">
+import { onMounted, defineProps } from "vue";
+import { Loader } from "@googlemaps/js-api-loader";
 
+const props = defineProps({ center: Object, pins: Array });
 const center = props.center as Center;
 const pins = props.pins as Pin[];
+const colorMap = {
+  red: { main: "orangered", sub: "firebrick" },
+  blue: { main: "dodgerblue", sub: "royalblue" },
+  green: { main: "limegreen", sub: "forestgreen" },
+  yellow: { main: "gold", sub: "goldenrod" },
+};
 
-const loader = new Loader({
-  apiKey: process.env.VUE_APP_MAPS_API_KEY,
-  version: "weekly",
-  libraries: ["places"],
-});
+const customPinColor = (color?: ColorCode) => {
+  const defaultMainColor = colorMap.red.main;
+  const defaultSubColor = colorMap.red.sub;
+  if (!color) {
+    return {
+      background: defaultMainColor,
+      glyphColor: defaultSubColor,
+      borderColor: defaultSubColor,
+    };
+  } else {
+    return {
+      background: colorMap[color].main,
+      glyphColor: colorMap[color].sub,
+      borderColor: colorMap[color].sub,
+    };
+  }
+};
 
-const mapMount = async (center: Center, pins: Pin[]) => {
-  const google = await loader.load();
+const loadeMapsLibrary = async () => {
+  const loader = new Loader({
+    apiKey: process.env.VUE_APP_MAPS_API_KEY,
+    version: "weekly",
+    libraries: ["places"],
+  });
+  const { Map } = await loader.importLibrary("maps");
   const { AdvancedMarkerElement } = await loader.importLibrary("marker");
   const { PinElement } = await loader.importLibrary("marker");
+  return { Map, AdvancedMarkerElement, PinElement };
+};
+
+onMounted(async () => {
+  const { Map, AdvancedMarkerElement, PinElement } = await loadeMapsLibrary();
   const mapElement = document.getElementById("map") as HTMLElement;
-  const map = new google.maps.Map(mapElement, {
+
+  const map = new Map(mapElement, {
     center: center,
     zoom: 12,
     mapId: process.env.VUE_APP_MAP_ID,
   });
 
   for (let pin of pins) {
-    const customPin = new PinElement({
-      // blue background
-      background: "#8080FF",
-      // blue glyph
-      glyphColor: "#0000A0",
-      // blue border
-      borderColor: "#0000A0",
-    });
-
+    const customPin = new PinElement(customPinColor(pin.color));
     new AdvancedMarkerElement({
       position: pin.position,
       map: map,
       content: customPin.element,
     });
   }
-};
-
-onMounted(async () => {
-  mapMount(center, pins);
 });
 </script>
 
