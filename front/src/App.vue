@@ -13,7 +13,7 @@ interface DynamoDbItem {
       lat: { N: string };
     };
   };
-  color: { S: string };
+  color: { S: ColorCode };
 }
 
 const center: Center = { lat: 35.6812362, lng: 139.7645445 };
@@ -25,7 +25,7 @@ const converteDynamoDbData = (dynamoDbData: DynamoDbItem[]) => {
       id: parseInt(item.id.S),
       name: item.name.S,
       group: item.group.S,
-      color: (item.color.S as ColorCode) || undefined,
+      color: item.color.S,
       position: {
         lat: parseFloat(item.position.M.lat.N),
         lng: parseFloat(item.position.M.lng.N),
