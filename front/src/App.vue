@@ -1,37 +1,49 @@
 <script setup lang="ts">
-import GoogleMap, { Center, Pin } from "./components/GoogleMap.vue";
+import { ref, onMounted } from "vue";
+import GoogleMap, { Center, Pin, ColorCode } from "./components/GoogleMap.vue";
 import PinList from "./components/PinList.vue";
 
+interface DynamoDbItem {
+  group: { S: string };
+  id: { S: string };
+  name: { S: string };
+  position: {
+    M: {
+      lng: { N: string };
+      lat: { N: string };
+    };
+  };
+  color: { S: ColorCode };
+}
+
 const center: Center = { lat: 35.6812362, lng: 139.7645445 };
-const pins: Pin[] = [
-  {
-    id: 1,
-    name: "東京駅",
-    group: "お気に入り",
-    position: { lat: 35.6812362, lng: 139.7645445 },
-  },
-  {
-    id: 2,
-    name: "新宿駅",
-    group: "お気に入り",
-    color: "blue",
-    position: { lat: 35.6896342, lng: 139.700645 },
-  },
-  {
-    id: 3,
-    name: "品川駅",
-    group: "お気に入り",
-    color: "green",
-    position: { lat: 35.62876, lng: 139.738308 },
-  },
-  {
-    id: 4,
-    name: "池袋駅",
-    group: "お気に入り",
-    color: "yellow",
-    position: { lat: 35.729799, lng: 139.710052 },
-  },
-];
+const pins = ref<Pin[]>([]);
+
+const converteDynamoDbData = (dynamoDbData: DynamoDbItem[]) => {
+  const data: Pin[] = dynamoDbData.map((item: DynamoDbItem) => {
+    const pin: Pin = {
+      id: parseInt(item.id.S),
+      name: item.name.S,
+      group: item.group.S,
+      color: item.color.S,
+      position: {
+        lat: parseFloat(item.position.M.lat.N),
+        lng: parseFloat(item.position.M.lng.N),
+      },
+    };
+    return pin;
+  });
+  return data;
+};
+
+onMounted(async () => {
+  const url = process.env.VUE_APP_DATA_API_URL;
+  const res = await fetch(url).catch((err) => console.error(err));
+  if (!res) return;
+  const json = await res.json();
+  const pinsData = converteDynamoDbData(json);
+  pins.value = pinsData;
+});
 </script>
 
 <template>

@@ -4,7 +4,7 @@ export interface Center {
   lng: number;
 }
 
-type ColorCode = "red" | "blue" | "green" | "yellow";
+export type ColorCode = "red" | "blue" | "green" | "yellow";
 export interface Pin {
   id: number;
   name: string;
@@ -15,12 +15,14 @@ export interface Pin {
 </script>
 
 <script setup lang="ts">
-import { onMounted, defineProps } from "vue";
+import { defineProps, PropType, onUpdated } from "vue";
 import { Loader } from "@googlemaps/js-api-loader";
 
-const props = defineProps({ center: Object, pins: Array });
+const props = defineProps({
+  center: Object as PropType<Center>,
+  pins: Array as PropType<Pin[]>,
+});
 const center = props.center as Center;
-const pins = props.pins as Pin[];
 const colorMap = {
   red: { main: "orangered", sub: "firebrick" },
   blue: { main: "dodgerblue", sub: "royalblue" },
@@ -53,13 +55,13 @@ const loadeMapsLibrary = async () => {
     libraries: ["places"],
   });
   const { Map } = await loader.importLibrary("maps");
-  const { AdvancedMarkerElement } = await loader.importLibrary("marker");
   const { PinElement } = await loader.importLibrary("marker");
-  return { Map, AdvancedMarkerElement, PinElement };
+  const { AdvancedMarkerElement } = await loader.importLibrary("marker");
+  return { Map, PinElement, AdvancedMarkerElement };
 };
 
-onMounted(async () => {
-  const { Map, AdvancedMarkerElement, PinElement } = await loadeMapsLibrary();
+onUpdated(async () => {
+  const { Map, PinElement, AdvancedMarkerElement } = await loadeMapsLibrary();
   const mapElement = document.getElementById("map") as HTMLElement;
 
   const map = new Map(mapElement, {
@@ -68,7 +70,7 @@ onMounted(async () => {
     mapId: process.env.VUE_APP_MAP_ID,
   });
 
-  for (let pin of pins) {
+  for (let pin of props.pins as Pin[]) {
     const customPin = new PinElement(customPinColor(pin.color));
     new AdvancedMarkerElement({
       position: pin.position,
