@@ -44,6 +44,8 @@ const connectWebSocket = () => {
   const url = process.env.VUE_APP_WEBSOCKET_URL;
   socket.value = new WebSocket(url);
   socket.value.onmessage = (event) => {
+    // pinsを上書きして更新するとMAP全体が再描画される
+    // 無駄な描画を防ぐため更新要素のみGoogleMap.Vueに渡し処理は任せる
     const streamPins = converteEventDataToStreamPins(event);
     update.value = streamPins;
   };
