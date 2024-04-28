@@ -27,21 +27,21 @@ jobs:
           role-to-assume: "arn:aws:iam::851725478795:role/mapapp-iam-github-role" # 作成した IAM ロールの ARN
 
       # mapapp-func-get zip化
-      - name: Zip
+      - name: mapapp-func-get zip
         run: zip -r deploy.zip ./index.mjs
         working-directory: ./back/mapapp-func-get
 
       # mapapp-func-get デプロイ
-      - name: Deploy
+      - name: mapapp-func-get deploy
         run: aws lambda update-function-code --function-name mapapp-func-get --zip-file fileb://deploy.zip
         working-directory: ./back/mapapp-func-get
 
       # mapapp-func-websocket zip化
-      - name: Zip
+      - name: mapapp-func-websocket zip
         run: zip -r deploy.zip ./index.mjs
         working-directory: ./back/mapapp-func-websocket
 
       # mapapp-func-websocket デプロイ
-      - name: Deploy
+      - name: mapapp-func-websocket deploy
         run: aws lambda update-function-code --function-name mapapp-func-websocket --zip-file fileb://deploy.zip
         working-directory: ./back/mapapp-func-websocket
