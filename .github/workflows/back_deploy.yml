@@ -36,12 +36,32 @@ jobs:
         run: aws lambda update-function-code --function-name mapapp-func-get --zip-file fileb://deploy.zip
         working-directory: ./back/mapapp-func-get
 
-      # mapapp-func-websocket zip化
-      - name: mapapp-func-websocket zip
+      # mapapp-func-websocket-connect zip化
+      - name: mapapp-func-websocket-connect zip
         run: zip -r deploy.zip ./index.mjs
-        working-directory: ./back/mapapp-func-websocket
+        working-directory: ./back/mapapp-func-websocket-connect
 
-      # mapapp-func-websocket デプロイ
-      - name: mapapp-func-websocket deploy
-        run: aws lambda update-function-code --function-name mapapp-func-websocket --zip-file fileb://deploy.zip
-        working-directory: ./back/mapapp-func-websocket
+      # mapapp-func-websocket-connect デプロイ
+      - name: mapapp-func-websocket-connect deploy
+        run: aws lambda update-function-code --function-name mapapp-func-websocket-connect --zip-file fileb://deploy.zip
+        working-directory: ./back/mapapp-func-websocket-connect
+
+      # mapapp-func-websocket-disconnect zip化
+      - name: mapapp-func-websocket-disconnect zip
+        run: zip -r deploy.zip ./index.mjs
+        working-directory: ./back/mapapp-func-websocket-disconnect
+
+      # mapapp-func-websocket-disconnect デプロイ
+      - name: mapapp-func-websocket-disconnect deploy
+        run: aws lambda update-function-code --function-name mapapp-func-websocket-disconnect --zip-file fileb://deploy.zip
+        working-directory: ./back/mapapp-func-websocket-disconnect
+
+      # mapapp-func-dynamodb-stream zip化
+      - name: mapapp-func-dynamodb-stream zip
+        run: zip -r deploy.zip ./index.mjs
+        working-directory: ./back/mapapp-func-dynamodb-stream
+
+      # mapapp-func-dynamodb-stream デプロイ
+      - name: mapapp-func-dynamodb-stream deploy
+        run: aws lambda update-function-code --function-name mapapp-func-dynamodb-stream --zip-file fileb://deploy.zip
+        working-directory: ./back/mapapp-func-dynamodb-stream
