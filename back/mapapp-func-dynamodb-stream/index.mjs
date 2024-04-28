@@ -23,7 +23,7 @@ export const handler = async (event) => {
       })
     );
 
-    const sendMessages = data.Items.map(async (connection) => {
+    const streamData = data.Items.map(async (connection) => {
       await apigwClient.send(
         new PostToConnectionCommand({
           ConnectionId: connection.connectionId,
@@ -36,7 +36,7 @@ export const handler = async (event) => {
       );
     });
 
-    await Promise.all(sendMessages);
+    await Promise.all(streamData);
 
     return {
       statusCode: 200,

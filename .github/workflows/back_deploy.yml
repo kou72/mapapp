@@ -26,42 +26,14 @@ jobs:
           aws-region: "ap-northeast-1" # リージョンを指定
           role-to-assume: "arn:aws:iam::851725478795:role/mapapp-iam-github-role" # 作成した IAM ロールの ARN
 
-      # mapapp-func-get zip化
-      - name: mapapp-func-get zip
-        run: zip -r deploy.zip ./index.mjs
-        working-directory: ./back/mapapp-func-get
-
-      # mapapp-func-get デプロイ
-      - name: mapapp-func-get deploy
-        run: aws lambda update-function-code --function-name mapapp-func-get --zip-file fileb://deploy.zip
-        working-directory: ./back/mapapp-func-get
-
-      # mapapp-func-websocket-connect zip化
-      - name: mapapp-func-websocket-connect zip
-        run: zip -r deploy.zip ./index.mjs
-        working-directory: ./back/mapapp-func-websocket-connect
-
-      # mapapp-func-websocket-connect デプロイ
-      - name: mapapp-func-websocket-connect deploy
-        run: aws lambda update-function-code --function-name mapapp-func-websocket-connect --zip-file fileb://deploy.zip
-        working-directory: ./back/mapapp-func-websocket-connect
-
-      # mapapp-func-websocket-disconnect zip化
-      - name: mapapp-func-websocket-disconnect zip
-        run: zip -r deploy.zip ./index.mjs
-        working-directory: ./back/mapapp-func-websocket-disconnect
-
-      # mapapp-func-websocket-disconnect デプロイ
-      - name: mapapp-func-websocket-disconnect deploy
-        run: aws lambda update-function-code --function-name mapapp-func-websocket-disconnect --zip-file fileb://deploy.zip
-        working-directory: ./back/mapapp-func-websocket-disconnect
-
-      # mapapp-func-dynamodb-stream zip化
-      - name: mapapp-func-dynamodb-stream zip
-        run: zip -r deploy.zip ./index.mjs
-        working-directory: ./back/mapapp-func-dynamodb-stream
-
-      # mapapp-func-dynamodb-stream デプロイ
-      - name: mapapp-func-dynamodb-stream deploy
-        run: aws lambda update-function-code --function-name mapapp-func-dynamodb-stream --zip-file fileb://deploy.zip
-        working-directory: ./back/mapapp-func-dynamodb-stream
+      # Lambda 関数をzip化しデプロイする
+      - name: Deploy Lambda functions
+        run: |
+          cd back
+          for dir in */; do
+            func=${dir%/}
+            pushd "$dir"
+            zip -r deploy.zip ./index.mjs
+            aws lambda update-function-code --function-name "$func" --zip-file fileb://deploy.zip
+            popd
+          done
