@@ -1,39 +1,54 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import GoogleMap, { Center, Pin, ColorCode } from "./components/GoogleMap.vue";
+import { Center, Pin, DynamoDbItem, StreamPins } from "@/types/map-interfaces";
+import GoogleMap from "./components/GoogleMap.vue";
 import PinList from "./components/PinList.vue";
-
-interface DynamoDbItem {
-  group: { S: string };
-  id: { S: string };
-  name: { S: string };
-  position: {
-    M: {
-      lng: { N: string };
-      lat: { N: string };
-    };
-  };
-  color: { S: ColorCode };
-}
 
 const center: Center = { lat: 35.6812362, lng: 139.7645445 };
 const pins = ref<Pin[]>([]);
+const socket = ref<WebSocket | null>(null);
+const update = ref<StreamPins>();
+
+const converteDbItemToPin = (item: DynamoDbItem): Pin => {
+  const pin: Pin = {
+    id: item.id.S,
+    name: item.name.S,
+    group: item.group.S,
+    color: item.color.S,
+    position: {
+      lat: parseFloat(item.position.M.lat.N),
+      lng: parseFloat(item.position.M.lng.N),
+    },
+  };
+  return pin;
+};
 
 const converteDbDataToPinsData = (dynamoDbData: DynamoDbItem[]) => {
   const data: Pin[] = dynamoDbData.map((item: DynamoDbItem) => {
-    const pin: Pin = {
-      id: parseInt(item.id.S),
-      name: item.name.S,
-      group: item.group.S,
-      color: item.color.S,
-      position: {
-        lat: parseFloat(item.position.M.lat.N),
-        lng: parseFloat(item.position.M.lng.N),
-      },
-    };
-    return pin;
+    return converteDbItemToPin(item);
   });
   return data;
+};
+
+const converteEventDataToStreamPins = (event: MessageEvent) => {
+  const data = JSON.parse(event.data);
+  const updateData: StreamPins = {
+    operation: data.operation,
+    item: data.item ? converteDbItemToPin(data.item) : undefined,
+    id: data.key.id.S,
+  };
+  return updateData;
+};
+
+const connectWebSocket = () => {
+  const url = process.env.VUE_APP_WEBSOCKET_URL;
+  socket.value = new WebSocket(url);
+  socket.value.onmessage = (event) => {
+    // pinsを上書きして更新するとMAP全体が再描画される
+    // 無駄な描画を防ぐため更新要素のみGoogleMap.Vueに渡し処理は任せる
+    const streamPins = converteEventDataToStreamPins(event);
+    update.value = streamPins;
+  };
 };
 
 onMounted(async () => {
@@ -43,13 +58,14 @@ onMounted(async () => {
   const dynamoDabData = await res.json();
   const pinsData = converteDbDataToPinsData(dynamoDabData);
   pins.value = pinsData;
+  connectWebSocket();
 });
 </script>
 
 <template>
   <v-row class="ma-2">
     <v-col cols="8">
-      <GoogleMap :center="center" :pins="pins" />
+      <GoogleMap :center="center" :pins="pins" :stream="update" />
     </v-col>
     <v-col cols="4" class="align-center">
       <PinList :pins="pins"></PinList>
