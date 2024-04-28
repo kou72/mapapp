@@ -28,7 +28,7 @@ export interface DynamoDbItem {
 
 export type OperationCode = "INSERT" | "MODIFY" | "REMOVE";
 
-export interface StreamPins {
+export interface PinStream {
   operation: OperationCode;
   item?: Pin;
   id: string;
