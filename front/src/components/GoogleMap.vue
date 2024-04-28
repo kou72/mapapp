@@ -107,6 +107,7 @@ const modifyPin = async (id: string, item: Pin) => {
 
 const updatePins = async (stream: StreamPins) => {
   if (stream.operation == "REMOVE") await removePin(stream.id);
+  // REMOVEの場合はitemがないためundefinedの場合は処理を抜ける
   if (stream.item === undefined) return;
   if (stream.operation === "INSERT") await insertPin(stream.item);
   if (stream.operation == "MODIFY") await modifyPin(stream.id, stream.item);
