@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { Center, Pin, DynamoDbItem, StreamPins } from "@/types/map-interfaces";
+import { Center, Pin, DynamoDbItem, PinStream } from "@/types/map-interfaces";
 import GoogleMap from "./components/GoogleMap.vue";
 import PinList from "./components/PinList.vue";
 
 const center: Center = { lat: 35.6812362, lng: 139.7645445 };
 const pins = ref<Pin[]>([]);
 const socket = ref<WebSocket | null>(null);
-const update = ref<StreamPins>();
+const stream = ref<PinStream>();
 
 const converteDbItemToPin = (item: DynamoDbItem): Pin => {
   const pin: Pin = {
@@ -30,24 +30,24 @@ const converteDbDataToPinsData = (dynamoDbData: DynamoDbItem[]) => {
   return data;
 };
 
-const converteEventDataToStreamPins = (event: MessageEvent) => {
-  const data = JSON.parse(event.data);
-  const updateData: StreamPins = {
+const converteDbStreamToPinStream = (dbStream: MessageEvent) => {
+  const data = JSON.parse(dbStream.data);
+  const pinStream: PinStream = {
     operation: data.operation,
     item: data.item ? converteDbItemToPin(data.item) : undefined,
     id: data.key.id.S,
   };
-  return updateData;
+  return pinStream;
 };
 
 const connectWebSocket = () => {
   const url = process.env.VUE_APP_WEBSOCKET_URL;
   socket.value = new WebSocket(url);
-  socket.value.onmessage = (event) => {
+  socket.value.onmessage = (dbStream) => {
     // pinsを上書きして更新するとMAP全体が再描画される
     // 無駄な描画を防ぐため更新要素のみGoogleMap.Vueに渡し処理は任せる
-    const streamPins = converteEventDataToStreamPins(event);
-    update.value = streamPins;
+    const pinStream = converteDbStreamToPinStream(dbStream);
+    stream.value = pinStream;
   };
 };
 
@@ -65,7 +65,7 @@ onMounted(async () => {
 <template>
   <v-row class="ma-2">
     <v-col cols="8">
-      <GoogleMap :center="center" :pins="pins" :stream="update" />
+      <GoogleMap :center="center" :pins="pins" :stream="stream" />
     </v-col>
     <v-col cols="4" class="align-center">
       <PinList :pins="pins"></PinList>
