@@ -6,7 +6,7 @@ export interface Center {
 
 export type ColorCode = "red" | "blue" | "green" | "yellow";
 export interface Pin {
-  id: number;
+  id: string;
   name: string;
   group: string;
   color?: ColorCode;

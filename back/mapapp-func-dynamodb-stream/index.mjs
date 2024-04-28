@@ -29,7 +29,7 @@ export const handler = async (event) => {
           ConnectionId: connection.connectionId,
           Data: JSON.stringify({
             operation: operation,
-            keys: keys,
+            key: keys,
             item: item,
           }),
         })
