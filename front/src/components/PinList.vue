@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineProps, PropType } from "vue";
-import { Pin } from "./GoogleMap.vue";
+import { Pin } from "@/types/map-interfaces";
 
 const props = defineProps({
   pins: Array as PropType<Pin[]>,
