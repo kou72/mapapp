@@ -1,24 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
-import GoogleMap, { Center, Pin, ColorCode } from "./components/GoogleMap.vue";
+import { ref, onMounted } from "vue";
+import { Center, Pin, DynamoDbItem, StreamPins } from "@/types/map-interfaces";
+import GoogleMap from "./components/GoogleMap.vue";
 import PinList from "./components/PinList.vue";
-
-interface DynamoDbItem {
-  group: { S: string };
-  id: { S: string };
-  name: { S: string };
-  position: {
-    M: {
-      lng: { N: string };
-      lat: { N: string };
-    };
-  };
-  color: { S: ColorCode };
-}
 
 const center: Center = { lat: 35.6812362, lng: 139.7645445 };
 const pins = ref<Pin[]>([]);
 const socket = ref<WebSocket | null>(null);
+const update = ref<StreamPins>();
 
 const converteDbItemToPin = (item: DynamoDbItem): Pin => {
   const pin: Pin = {
@@ -41,36 +30,23 @@ const converteDbDataToPinsData = (dynamoDbData: DynamoDbItem[]) => {
   return data;
 };
 
-const insertPin = (item: DynamoDbItem) => {
-  const newPin = converteDbItemToPin(item);
-  const newPins = [...pins.value, newPin];
-  pins.value = newPins;
-};
-
-const modifyPin = (item: DynamoDbItem) => {
-  const modifiedPin = converteDbItemToPin(item);
-  const modifedPins = pins.value.map((pin) => {
-    if (pin.id === modifiedPin.id) return modifiedPin;
-    return pin;
-  });
-  pins.value = modifedPins;
-};
-
-const removePin = (id: string) => {
-  pins.value = pins.value.filter((pin) => pin.id !== id);
-};
-
-const updatePins = (event: MessageEvent) => {
+const converteEventDataToStreamPins = (event: MessageEvent) => {
   const data = JSON.parse(event.data);
-  if (data.operation === "INSERT") insertPin(data.item);
-  if (data.operation == "MODIFY") modifyPin(data.item);
-  if (data.operation == "REMOVE") removePin(data.key.id.S);
+  const updateData: StreamPins = {
+    operation: data.operation,
+    item: data.item ? converteDbItemToPin(data.item) : undefined,
+    id: data.key.id.S,
+  };
+  return updateData;
 };
 
 const connectWebSocket = () => {
   const url = process.env.VUE_APP_WEBSOCKET_URL;
   socket.value = new WebSocket(url);
-  socket.value.onmessage = (event) => updatePins(event);
+  socket.value.onmessage = (event) => {
+    const streamPins = converteEventDataToStreamPins(event);
+    update.value = streamPins;
+  };
 };
 
 onMounted(async () => {
@@ -82,18 +58,12 @@ onMounted(async () => {
   pins.value = pinsData;
   connectWebSocket();
 });
-
-onUnmounted(() => {
-  if (socket.value) {
-    socket.value.close();
-  }
-});
 </script>
 
 <template>
   <v-row class="ma-2">
     <v-col cols="8">
-      <GoogleMap :center="center" :pins="pins" />
+      <GoogleMap :center="center" :pins="pins" :stream="update" />
     </v-col>
     <v-col cols="4" class="align-center">
       <PinList :pins="pins"></PinList>
