@@ -15,7 +15,7 @@ export interface Pin {
 </script>
 
 <script setup lang="ts">
-import { defineProps, PropType, onUpdated } from "vue";
+import { defineProps, PropType, onMounted, onUpdated } from "vue";
 import { Loader } from "@googlemaps/js-api-loader";
 
 const props = defineProps({
@@ -29,6 +29,10 @@ const colorMap = {
   green: { main: "limegreen", sub: "forestgreen" },
   yellow: { main: "gold", sub: "goldenrod" },
 };
+// eslint-disable-next-line
+let map: google.maps.Map;
+// eslint-disable-next-line
+let markers: google.maps.marker.AdvancedMarkerElement[] = [];
 
 const customPinColor = (color?: ColorCode) => {
   const defaultMainColor = colorMap.red.main;
@@ -60,23 +64,31 @@ const loadeMapsLibrary = async () => {
   return { Map, PinElement, AdvancedMarkerElement };
 };
 
-onUpdated(async () => {
-  const { Map, PinElement, AdvancedMarkerElement } = await loadeMapsLibrary();
+onMounted(async () => {
+  const { Map } = await loadeMapsLibrary();
   const mapElement = document.getElementById("map") as HTMLElement;
 
-  const map = new Map(mapElement, {
+  map = new Map(mapElement, {
     center: center,
     zoom: 12,
     mapId: process.env.VUE_APP_MAP_ID,
   });
+});
+
+onUpdated(async () => {
+  const { PinElement, AdvancedMarkerElement } = await loadeMapsLibrary();
+
+  // 描画の重複を避けるためmarkerを全て削除
+  for (let marker of markers) marker.map = null;
 
   for (let pin of props.pins as Pin[]) {
     const customPin = new PinElement(customPinColor(pin.color));
-    new AdvancedMarkerElement({
+    const marker = new AdvancedMarkerElement({
       position: pin.position,
       map: map,
       content: customPin.element,
     });
+    markers.push(marker);
   }
 });
 </script>
