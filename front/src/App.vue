@@ -52,7 +52,7 @@ const connectWebSocket = () => {
 };
 
 onMounted(async () => {
-  const url = process.env.VUE_APP_DATA_API_URL;
+  const url = process.env.VUE_APP_REST_API_URL;
   const res = await fetch(url).catch((err) => console.error(err));
   if (!res) return;
   const dynamoDabData = await res.json();

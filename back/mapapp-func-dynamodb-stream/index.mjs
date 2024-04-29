@@ -1,3 +1,5 @@
+// DynamoDB Stream からのイベントを受け取り発火する Lambda 関数
+// テーブル操作を mapapp-connection にある接続idに対して通知する
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { ScanCommand } from "@aws-sdk/lib-dynamodb";
 import {
@@ -19,7 +21,7 @@ export const handler = async (event) => {
 
     const data = await dynamodbClient.send(
       new ScanCommand({
-        TableName: "WebSocketConnections",
+        TableName: "mapapp-connection",
       })
     );
 

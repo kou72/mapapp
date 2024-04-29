@@ -1,3 +1,5 @@
+// Websocket の切断時に呼ばれる Lambda 関数
+// DynamoDB のテーブルから接続idを削除する
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DeleteCommand } from "@aws-sdk/lib-dynamodb";
 
@@ -9,7 +11,7 @@ export const handler = async (event) => {
 
     await client.send(
       new DeleteCommand({
-        TableName: "WebSocketConnections",
+        TableName: "mapapp-connection",
         Key: {
           connectionId: connectionId,
         },

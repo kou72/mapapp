@@ -1,3 +1,5 @@
+// REST API の GET メソッドで 発火する Lambda 関数
+// DynamoDB のテーブルをスキャンして全てのアイテムを取得する
 import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
 
 const client = new DynamoDBClient({});
