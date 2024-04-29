@@ -40,6 +40,15 @@ const converteDbStreamToPinStream = (dbStream: MessageEvent) => {
   return pinStream;
 };
 
+const getPinsData = async () => {
+  const url = process.env.VUE_APP_REST_API_URL;
+  const res = await fetch(url).catch((err) => console.error(err));
+  if (!res) return;
+  const dynamoDabData = await res.json();
+  const pinsData = converteDbDataToPinsData(dynamoDabData);
+  pins.value = pinsData;
+};
+
 const connectWebSocket = () => {
   const url = process.env.VUE_APP_WEBSOCKET_URL;
   socket.value = new WebSocket(url);
@@ -52,12 +61,7 @@ const connectWebSocket = () => {
 };
 
 onMounted(async () => {
-  const url = process.env.VUE_APP_REST_API_URL;
-  const res = await fetch(url).catch((err) => console.error(err));
-  if (!res) return;
-  const dynamoDabData = await res.json();
-  const pinsData = converteDbDataToPinsData(dynamoDabData);
-  pins.value = pinsData;
+  await getPinsData();
   connectWebSocket();
 });
 </script>
