@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "front/**"
+      - ".github/workflows/front_deploy.yml"
 
 jobs:
   vue_build_and_deploy_on_s3:
