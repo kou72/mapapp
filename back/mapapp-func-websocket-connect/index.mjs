@@ -1,3 +1,5 @@
+// Websocket の接続時に呼ばれる Lambda 関数
+// DynamoDB のテーブルに接続idを保存する
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 
@@ -9,7 +11,7 @@ export const handler = async (event) => {
 
     await client.send(
       new PutCommand({
-        TableName: "WebSocketConnections",
+        TableName: "mapapp-connection",
         Item: {
           connectionId: connectionId,
         },
