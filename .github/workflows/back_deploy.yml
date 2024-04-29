@@ -27,10 +27,9 @@ jobs:
           aws-region: "ap-northeast-1" # リージョンを指定
           role-to-assume: "arn:aws:iam::851725478795:role/mapapp-iam-github-role" # 作成した IAM ロールの ARN
 
-      # Lambda 関数をzip化しデプロイする
+      # /back/lambda 配下の全ディレクトリに対してディレクトリ名を Lambda 関数名としてzip化しデプロイする
       - name: Deploy Lambda functions
         run: |
-          cd back
           for dir in */; do
             func=${dir%/}
             pushd "$dir"
@@ -38,3 +37,4 @@ jobs:
             aws lambda update-function-code --function-name "$func" --zip-file fileb://deploy.zip
             popd
           done
+        working-directory: ./back/lambda
