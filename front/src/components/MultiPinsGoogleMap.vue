@@ -3,41 +3,17 @@
 /*eslint no-undef: "error"*/
 import { defineProps, PropType, onMounted, onUpdated } from "vue";
 import { Loader } from "@googlemaps/js-api-loader";
-import { Center, Pin, ColorCode, PinStream } from "@/types/map-interfaces";
+import { Center, Pin, PinStream } from "@/types/map-interfaces";
+import { customPinsColor } from "@/utils/customPinsColor";
 
 const props = defineProps({
   center: { type: Object as PropType<Center>, required: true },
   pins: { type: Array as PropType<Pin[]>, required: true },
   stream: Object as PropType<PinStream>,
 });
-const colorMap = {
-  red: { light: "orangered", dark: "firebrick" },
-  blue: { light: "dodgerblue", dark: "royalblue" },
-  green: { light: "limegreen", dark: "forestgreen" },
-  yellow: { light: "gold", dark: "goldenrod" },
-};
 let pins: Pin[] = [];
 let map: google.maps.Map;
 let markers: google.maps.marker.AdvancedMarkerElement[] = [];
-
-// ピンに色を付けるための関数。濃淡の2色を使う
-const customPinColor = (color?: ColorCode) => {
-  const defaultLightColor = colorMap.red.light;
-  const defaultDarkColor = colorMap.red.dark;
-  if (!color) {
-    return {
-      background: defaultLightColor,
-      glyphColor: defaultDarkColor,
-      borderColor: defaultDarkColor,
-    };
-  } else {
-    return {
-      background: colorMap[color].light,
-      glyphColor: colorMap[color].dark,
-      borderColor: colorMap[color].dark,
-    };
-  }
-};
 
 const loadeGoogleMapsLibrary = async () => {
   const loader = new Loader({
@@ -68,7 +44,7 @@ const initPins = async () => {
   const { PinElement, AdvancedMarkerElement } = await loadeGoogleMapsLibrary();
   pins = props.pins;
   for (let pin of pins) {
-    const customPin = new PinElement(customPinColor(pin.color));
+    const customPin = new PinElement(customPinsColor(pin.color));
     const marker = new AdvancedMarkerElement({
       position: pin.position,
       map: map,
@@ -92,7 +68,7 @@ const removePin = async (id: string) => {
 
 const insertPin = async (item: Pin) => {
   const { PinElement, AdvancedMarkerElement } = await loadeGoogleMapsLibrary();
-  const customPin = new PinElement(customPinColor(item.color));
+  const customPin = new PinElement(customPinsColor(item.color));
   const marker = new AdvancedMarkerElement({
     position: item.position,
     map: map,
