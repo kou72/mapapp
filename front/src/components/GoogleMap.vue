@@ -1,4 +1,6 @@
 <script setup lang="ts">
+/*global google*/
+/*eslint no-undef: "error"*/
 import { defineProps, PropType, onMounted, onUpdated } from "vue";
 import { Loader } from "@googlemaps/js-api-loader";
 import { Center, Pin, ColorCode, PinStream } from "@/types/map-interfaces";
@@ -15,9 +17,7 @@ const colorMap = {
   yellow: { light: "gold", dark: "goldenrod" },
 };
 let pins: Pin[] = [];
-// eslint-disable-next-line
 let map: google.maps.Map;
-// eslint-disable-next-line
 let markers: google.maps.marker.AdvancedMarkerElement[] = [];
 
 // ピンに色を付けるための関数。濃淡の2色を使う
