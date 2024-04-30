@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { Center, Pin, DynamoDbItem, PinStream } from "@/types/map-interfaces";
-import GoogleMap from "@/components/GoogleMap.vue";
+import MultiPinsGoogleMap from "@/components/MultiPinsGoogleMap.vue";
 import NewPinButton from "@/components/NewPinButton.vue";
 import PinsList from "@/components/PinsList.vue";
 
@@ -70,7 +70,7 @@ onMounted(async () => {
 <template>
   <v-row class="ma-2">
     <v-col cols="8">
-      <GoogleMap :center="center" :pins="pins" :stream="stream" />
+      <MultiPinsGoogleMap :center="center" :pins="pins" :stream="stream" />
     </v-col>
     <v-col cols="4" class="text-center">
       <NewPinButton />
