@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import TopView from "../views/TopView.vue";
-import AboutView from "../views/AboutView.vue";
+import PostPinView from "../views/PostPinView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -11,7 +11,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/about",
     name: "about",
-    component: AboutView,
+    component: PostPinView,
   },
 ];
 

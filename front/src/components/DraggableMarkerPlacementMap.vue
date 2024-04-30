@@ -3,20 +3,18 @@
 /*eslint no-undef: "error"*/
 import { defineProps, PropType, onMounted, onUpdated } from "vue";
 import { Loader } from "@googlemaps/js-api-loader";
-import { Center, Pin, ColorCode, PinStream } from "@/types/map-interfaces";
+import { Center, Pin, ColorCode } from "@/types/map-interfaces";
 
 const props = defineProps({
-  center: { type: Object as PropType<Center>, required: true },
-  pins: { type: Array as PropType<Pin[]>, required: true },
-  stream: Object as PropType<PinStream>,
+  pin: { type: Object as PropType<Pin>, required: false },
 });
+
 const colorMap = {
   red: { light: "orangered", dark: "firebrick" },
   blue: { light: "dodgerblue", dark: "royalblue" },
   green: { light: "limegreen", dark: "forestgreen" },
   yellow: { light: "gold", dark: "goldenrod" },
 };
-let pins: Pin[] = [];
 let map: google.maps.Map;
 let markers: google.maps.marker.AdvancedMarkerElement[] = [];
 
@@ -51,11 +49,12 @@ const loadeGoogleMapsLibrary = async () => {
   return { Map, PinElement, AdvancedMarkerElement };
 };
 
+const center: Center = { lat: 35.6812362, lng: 139.7645445 };
 const initMap = async () => {
   const { Map } = await loadeGoogleMapsLibrary();
   const mapElement = document.getElementById("map") as HTMLElement;
   map = new Map(mapElement, {
-    center: props.center,
+    center: center,
     zoom: 12,
     draggableCursor: "default",
 
@@ -66,65 +65,24 @@ const initMap = async () => {
 
 const initPins = async () => {
   const { PinElement, AdvancedMarkerElement } = await loadeGoogleMapsLibrary();
-  pins = props.pins;
-  for (let pin of pins) {
-    const customPin = new PinElement(customPinColor(pin.color));
-    const marker = new AdvancedMarkerElement({
-      position: pin.position,
-      map: map,
-      content: customPin.element,
-    });
-    // マーカーを操作するために保存する。pins[]と2重管理になる
-    markers.push(marker);
-  }
-};
-
-const removePin = async (id: string) => {
-  // 配置したピンを削除するには marker.map = null とする必要がある
-  // markers[]はidを持たないため、pins[]からidを取得して特定する
-  const i = pins.findIndex((pin) => pin.id === id);
-  markers[i].map = null;
-  // 削除したpinをpins[]から取り除く
-  // markers[]も同期させる必要があるため合わせて削除
-  pins.splice(i, 1);
-  markers.splice(i, 1);
-};
-
-const insertPin = async (item: Pin) => {
-  const { PinElement, AdvancedMarkerElement } = await loadeGoogleMapsLibrary();
-  const customPin = new PinElement(customPinColor(item.color));
+  if (!props.pin) return;
+  const customPin = new PinElement(customPinColor(props.pin.color));
   const marker = new AdvancedMarkerElement({
-    position: item.position,
+    position: props.pin.position,
     map: map,
     content: customPin.element,
   });
-  // pins[]とmarkers[]は同期させる必要があるので合わせて追加
-  pins.push(item);
+  // マーカーを操作するために保存する。pins[]と2重管理になる
   markers.push(marker);
-};
-
-const modifyPin = async (id: string, item: Pin) => {
-  removePin(id);
-  insertPin(item);
-};
-
-const updatePins = async (stream: PinStream) => {
-  if (stream.operation == "REMOVE") await removePin(stream.id);
-  // REMOVEの場合はitemがないためundefinedの場合は処理を抜ける
-  if (stream.item === undefined) return;
-  if (stream.operation === "INSERT") await insertPin(stream.item);
-  if (stream.operation == "MODIFY") await modifyPin(stream.id, stream.item);
 };
 
 onMounted(async () => {
   await initMap();
+  await initPins();
 });
 
 onUpdated(async () => {
-  // ピンはAPIからフェッチすためonMountedではなくonUpdatedで初期化する
-  if (!props.stream) await initPins();
-  // ピンの更新がある度にprops.streamを受け取り最小限の範囲で再描画する
-  if (props.stream) await updatePins(props.stream);
+  // await initPins();
 });
 </script>
 
