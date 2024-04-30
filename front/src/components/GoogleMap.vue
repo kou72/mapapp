@@ -57,6 +57,8 @@ const initMap = async () => {
   map = new Map(mapElement, {
     center: props.center,
     zoom: 12,
+    draggableCursor: "default",
+
     // 高度なマーカーを使用するためにmapIdの取得が必要
     mapId: process.env.VUE_APP_MAP_ID,
   });
