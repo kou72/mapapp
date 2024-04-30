@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import { Center, Pin, DynamoDbItem, PinStream } from "@/types/map-interfaces";
 import GoogleMap from "./components/GoogleMap.vue";
+import NewPinButton from "./components/NewPinButton.vue";
 import PinList from "./components/PinList.vue";
 
 const center: Center = { lat: 35.6812362, lng: 139.7645445 };
@@ -71,7 +72,8 @@ onMounted(async () => {
     <v-col cols="8">
       <GoogleMap :center="center" :pins="pins" :stream="stream" />
     </v-col>
-    <v-col cols="4" class="align-center">
+    <v-col cols="4" class="text-center">
+      <NewPinButton />
       <PinList :pins="pins"></PinList>
     </v-col>
   </v-row>
@@ -81,5 +83,6 @@ onMounted(async () => {
 * {
   margin: 0;
   padding: 0;
+  font-family: "Arial", "Hiragino Sans", "ヒラギノ角ゴシック", sans-serif;
 }
 </style>
