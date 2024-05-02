@@ -47,6 +47,7 @@ const initPins = async () => {
     position: props.pin.position,
     map: map,
     content: customPin.element,
+    gmpDraggable: true,
   });
   // マーカーを操作するために保存する。pins[]と2重管理になる
   markers.push(marker);
