@@ -2,20 +2,11 @@
 import { defineProps } from "vue";
 
 const props = defineProps({
-  text: {
-    type: String,
-    required: true,
-  },
-  func: {
-    type: Function,
-    required: false,
-  },
+  text: { type: String, required: true },
+  func: { type: Function, required: false },
 });
 
-const onClick = () => {
-  if (!props.func) return;
-  props.func();
-};
+const onClick = () => (props.func ? props.func() : null);
 </script>
 
 <template>

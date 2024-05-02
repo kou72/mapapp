@@ -40,11 +40,14 @@ const onRegister = () => {
 
 <template>
   <v-row class="ma-2">
+    <!-- Googleマップ -->
     <v-col cols="8">
       <DraggableMarkerPlacementMap :pin="pin" />
     </v-col>
     <v-col cols="4" class="mt-4">
+      <!-- 検索用テキストフィールド -->
       <SearchField :modelValue="inputText" :loading="loading" :func="onClick" />
+      <!-- ピンの要素 -->
       <div class="mx-4 mt-12 mb-16">
         <TextField label="名前" v-model="name" />
         <v-row class="my-4">
@@ -57,6 +60,7 @@ const onRegister = () => {
         </v-row>
         <TextField label="タイプ" v-model="type" />
       </div>
+      <!-- ボタン -->
       <v-row justify="end" class="mx-4">
         <OutlinedButton text="キャンセル" :func="onRegister" class="mr-2" />
         <FlatButton text="登録" :func="onRegister" class="ml-2" />
