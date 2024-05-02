@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { Center, Pin, DynamoDbItem, PinStream } from "@/types/map-interfaces";
 import MultiPinsGoogleMap from "@/components/MultiPinsGoogleMap.vue";
-import NewPinButton from "@/components/NewPinButton.vue";
+import FlatButton from "@/components/ui/FlatButton.vue";
 import PinsList from "@/components/PinsList.vue";
 
 const center: Center = { lat: 35.6812362, lng: 139.7645445 };
 const pins = ref<Pin[]>([]);
 const socket = ref<WebSocket | null>(null);
 const stream = ref<PinStream>();
+const router = useRouter();
+const goAboutPage = () => router.push("/about");
 
 const converteDbItemToPin = (item: DynamoDbItem): Pin => {
   const pin: Pin = {
@@ -73,7 +76,7 @@ onMounted(async () => {
       <MultiPinsGoogleMap :center="center" :pins="pins" :stream="stream" />
     </v-col>
     <v-col cols="4" class="text-center">
-      <NewPinButton />
+      <FlatButton text="ピンの追加" :func="goAboutPage" class="my-4" />
       <PinsList :pins="pins"></PinsList>
     </v-col>
   </v-row>

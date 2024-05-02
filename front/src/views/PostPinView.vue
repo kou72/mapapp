@@ -2,6 +2,10 @@
 import { ref } from "vue";
 import { Pin } from "@/types/map-interfaces";
 import DraggableMarkerPlacementMap from "@/components/DraggableMarkerPlacementMap.vue";
+import SearchField from "@/components/ui/SearchField.vue";
+import TextField from "@/components/ui/TextField.vue";
+import FlatButton from "@/components/ui/FlatButton.vue";
+import OutlinedButton from "@/components/ui/OutlinedButton.vue";
 import "@mdi/font/css/materialdesignicons.css";
 const pin: Pin = {
   id: "",
@@ -39,86 +43,23 @@ const onRegister = () => {
     <v-col cols="8">
       <DraggableMarkerPlacementMap :pin="pin" />
     </v-col>
-    <v-col cols="4">
-      <v-spacer class="pt-4"></v-spacer>
-      <v-text-field
-        :loading="loading"
-        append-inner-icon="mdi-magnify"
-        label="マップを検索する"
-        density="compact"
-        variant="outlined"
-        hide-details
-        color="grey"
-        single-line
-        rounded="xl"
-        @click:append-inner="onClick"
-      ></v-text-field>
-      <v-spacer class="pt-12"></v-spacer>
-      <div class="mx-4">
-        <v-label>名前</v-label>
-        <v-text-field
-          v-model="name"
-          variant="outlined"
-          density="compact"
-          hide-details
-          single-line
-          color="grey"
-        ></v-text-field>
-        <v-spacer class="pt-4"></v-spacer>
-        <v-row>
+    <v-col cols="4" class="mt-4">
+      <SearchField :modelValue="inputText" :loading="loading" :func="onClick" />
+      <div class="mx-4 mt-12 mb-16">
+        <TextField label="名前" v-model="name" />
+        <v-row class="my-4">
           <v-col cols="6">
-            <v-label>緯度</v-label>
-            <v-text-field
-              v-model="latitude"
-              variant="outlined"
-              density="compact"
-              hide-details
-              single-line
-              color="grey"
-            ></v-text-field>
+            <TextField label="緯度" v-model="latitude" />
           </v-col>
           <v-col cols="6">
-            <v-label>経度</v-label>
-            <v-text-field
-              v-model="longitude"
-              variant="outlined"
-              density="compact"
-              hide-details
-              single-line
-              color="grey"
-            ></v-text-field>
+            <TextField label="経度" v-model="longitude" />
           </v-col>
         </v-row>
-        <v-spacer class="pt-4"></v-spacer>
-        <v-label>タイプ</v-label>
-        <v-text-field
-          v-model="type"
-          variant="outlined"
-          density="compact"
-          hide-details
-          single-line
-          color="grey"
-        ></v-text-field>
-        <v-spacer class="pt-16"></v-spacer>
+        <TextField label="タイプ" v-model="type" />
       </div>
       <v-row justify="end" class="mx-4">
-        <v-btn
-          color="light-blue"
-          variant="outlined"
-          rounded
-          elevation="0"
-          @click="onRegister"
-          class="mr-2 px-2"
-          >キャンセル</v-btn
-        >
-        <v-btn
-          color="light-blue"
-          rounded
-          elevation="0"
-          @click="onRegister"
-          class="ml-2 px-2"
-          >登録</v-btn
-        >
+        <OutlinedButton text="キャンセル" :func="onRegister" class="mr-2" />
+        <FlatButton text="登録" :func="onRegister" class="ml-2" />
       </v-row>
     </v-col>
   </v-row>
