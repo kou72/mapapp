@@ -50,7 +50,7 @@ const onRegister = () => {
       <!-- ピンの要素 -->
       <div class="mx-4 mt-12 mb-16">
         <TextField label="名前" v-model="name" />
-        <v-row class="my-4">
+        <v-row class="py-3">
           <v-col cols="6">
             <TextField label="緯度" v-model="latitude" />
           </v-col>
