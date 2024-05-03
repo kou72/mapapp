@@ -20,7 +20,7 @@ const loading = ref(false);
 const mapRef = ref();
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const copyToPinValue = (data: any) => {
+const setPinValue = (data: any) => {
   const location = data.results[0].geometry.location;
   const newPin = {
     id: "",
@@ -40,7 +40,7 @@ const search = async () => {
     `${url}?address=${searchInput.value}&key=${process.env.VUE_APP_MAPS_API_KEY}`
   );
   const data = await res.json();
-  if (data.status === "OK") copyToPinValue(data);
+  if (data.status === "OK") setPinValue(data);
   loading.value = false;
 };
 
