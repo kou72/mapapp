@@ -38,7 +38,8 @@ const initPins = async () => {
       map: map,
       content: customPin.element,
     });
-    // マーカーを操作するために保存する。pins[]と2重管理になる
+    // markers.pushしなくても描画されるが、マーカー操作に必要なため保存する
+    // pins[]と整合性が取れるように管理する
     markers.push(marker);
   }
 };

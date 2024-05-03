@@ -1,13 +1,12 @@
 <script setup lang="ts">
 /*global google*/
 /*eslint no-undef: "error"*/
-
 import { onMounted, defineEmits, defineExpose } from "vue";
 import { Center, Pin, ColorCode } from "@/types/map-interfaces";
 import { customPinsColor } from "@/utils/customPinsColor";
 import { loadeGoogleMapsLibrary } from "@/utils/loadeGoogleMapsLibrary";
 
-// pinの値が変更されたときに親コンポーネントに通知する
+// 親コンポーネントにpinの値の変更を通知するためのemit
 const emit = defineEmits(["update:parentPin"]);
 const updateParentPin = (value: Pin) => emit("update:parentPin", value);
 
@@ -29,42 +28,43 @@ const initMap = async () => {
     center: center,
     zoom: 12,
     draggableCursor: "default",
-    // 高度なマーカーを使用するためにmapIdの取得が必要
+    // 高度なマーカーを使用するためにmapIdが必要
     mapId: process.env.VUE_APP_MAP_ID,
   });
-  // マップをクリックしたときにピンを配置する
   map.addListener("click", (e: google.maps.MapMouseEvent) =>
-    setEventPositionPin(e)
+    setClickPositionPin(e)
   );
 };
 
 const setPin = async (newPin: Pin) => {
   const { PinElement, AdvancedMarkerElement } = await loadeGoogleMapsLibrary();
-  // ピン情報を更新する。マップ上のイベントでピンを操作するときに使用する
+  // newPinを使っても描画できるが、pinを更新して利用する
+  // マップ側の更新がpin経由で親コンポーネントに通知されるため
   pin = newPin;
   const customPin = new PinElement(customPinsColor(pin.color));
   const marker = new AdvancedMarkerElement({
     position: pin.position,
     map: map,
     content: customPin.element,
-    gmpDraggable: true,
+    gmpDraggable: true, // ドラッグ可能にする
   });
   marker.addListener("drag", (e: google.maps.MapMouseEvent) => {
-    updateDraggablePinPosition(e);
+    updateDragPinPosition(e);
   });
   // 必要なピンは1つだけなのでmarkers[]も常に1つだけ
-  // 既存のピンがあれば削除する
+  // 既存のピンがあれば非表示にした後に削除する
   if (markers[0]) {
     markers[0].map = null;
     markers.splice(0, 1);
   }
+  // markers.pushしなくても描画されるが、マーカー操作に必要なため保存する
   markers.push(marker);
 };
 
-// setPinを親コンポーネントからpin発火できるようにする
+// setPinを親コンポーネントからpin発火できるようにexportする
 defineExpose({ setPin });
 
-const setEventPositionPin = async (e: google.maps.MapMouseEvent) => {
+const setClickPositionPin = async (e: google.maps.MapMouseEvent) => {
   if (!e.latLng) return;
   const newPosition = { lat: e.latLng.lat(), lng: e.latLng.lng() };
   const newPin: Pin = { ...pin, position: newPosition };
@@ -72,12 +72,13 @@ const setEventPositionPin = async (e: google.maps.MapMouseEvent) => {
   updateParentPin(newPin);
 };
 
-const updateDraggablePinPosition = async (e: google.maps.MapMouseEvent) => {
+const updateDragPinPosition = async (e: google.maps.MapMouseEvent) => {
   if (!e.latLng) return;
   const newPosition = { lat: e.latLng.lat(), lng: e.latLng.lng() };
   const newPin: Pin = { ...pin, position: newPosition };
-  updateParentPin(newPin);
+  // pinは更新するがsetPin()はしない。ドラッグ中なのでピンの描画は不要なため
   pin = newPin;
+  updateParentPin(newPin);
 };
 
 onMounted(async () => {
