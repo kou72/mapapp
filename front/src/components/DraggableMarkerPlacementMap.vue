@@ -41,6 +41,7 @@ const setPin = async (newPin: Pin) => {
   // newPinを使っても描画できるが、pinを更新して利用する
   // マップ側の更新がpin経由で親コンポーネントに通知されるため
   pin = newPin;
+  if (!pin.position) return;
   const customPin = new PinElement(customPinsColor(pin.color));
   const marker = new AdvancedMarkerElement({
     position: pin.position,
@@ -59,6 +60,7 @@ const setPin = async (newPin: Pin) => {
   }
   // markers.pushしなくても描画されるが、マーカー操作に必要なため保存する
   markers.push(marker);
+  map.panTo(pin.position);
 };
 
 // setPinを親コンポーネントからpin発火できるようにexportする
