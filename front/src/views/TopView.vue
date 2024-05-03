@@ -58,7 +58,7 @@ const connectWebSocket = () => {
   socket.value = new WebSocket(url);
   socket.value.onmessage = (dbStream) => {
     // pinsを上書きして更新するとMAP全体が再描画される
-    // 無駄な描画を防ぐため更新要素のみGoogleMap.Vueに渡し処理は任せる
+    // 無駄な描画を防ぐため更新要素のみコンポーネントに渡し処理は任せる
     const pinStream = converteDbStreamToPinStream(dbStream);
     stream.value = pinStream;
   };

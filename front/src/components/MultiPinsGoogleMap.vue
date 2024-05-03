@@ -22,7 +22,6 @@ const initMap = async () => {
     center: props.center,
     zoom: 12,
     draggableCursor: "default",
-
     // 高度なマーカーを使用するためにmapIdの取得が必要
     mapId: process.env.VUE_APP_MAP_ID,
   });
@@ -86,7 +85,7 @@ onMounted(async () => {
 });
 
 onUpdated(async () => {
-  // ピンはAPIからフェッチすためonMountedではなくonUpdatedで初期化する
+  // ピンはAPIから取得してくるためonMountedではなくonUpdatedで初期化する
   if (!props.stream) await initPins();
   // ピンの更新がある度にprops.streamを受け取り最小限の範囲で再描画する
   if (props.stream) await updatePins(props.stream);

@@ -18,7 +18,7 @@ const pin = ref<Pin>({
 });
 const searchInput = ref("");
 const loading = ref(false);
-// DraggableMarkerPlacementMapからexportされたsetPin()を取得する
+// コンポーネントからexposeされた関数などを取得する
 const mapRef = ref();
 
 const selectColorWithGroup = (group: string) => {
