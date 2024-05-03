@@ -52,7 +52,7 @@ const setMapPin = () => {
   mapRef.value.setPin(pin.value);
 };
 
-const search = async () => {
+const geocode = async () => {
   const url = "https://maps.googleapis.com/maps/api/geocode/json";
   loading.value = true;
   const res = await fetch(
@@ -83,7 +83,7 @@ onUpdated(() => {
     </v-col>
     <v-col cols="4" class="mt-4">
       <!-- 検索用テキストフィールド -->
-      <SearchField v-model="searchInput" :loading="loading" :func="search" />
+      <SearchField v-model="searchInput" :loading="loading" :func="geocode" />
       <!-- ピンの要素 -->
       <div class="mx-4 mt-12 mb-16">
         <TextField label="名前" v-model="pin.name" />
