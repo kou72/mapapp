@@ -18,6 +18,7 @@ const onClick = () => (props.func ? props.func() : null);
   <v-text-field
     :model-value="props.modelValue"
     @input="updateValue($event.target.value)"
+    @keydown.enter="onClick"
     label="マップを検索する"
     density="compact"
     variant="outlined"

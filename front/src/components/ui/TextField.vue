@@ -3,7 +3,7 @@ import { defineProps, defineEmits } from "vue";
 
 const props = defineProps({
   label: { type: String, required: false },
-  modelValue: { type: String, required: false },
+  modelValue: { type: [String, Number], required: false },
 });
 
 // テキストフィールドの値が変更されたときに親コンポーネントに通知する

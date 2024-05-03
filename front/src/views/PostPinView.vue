@@ -22,10 +22,24 @@ const latitude = ref("");
 const longitude = ref("");
 const type = ref("");
 
-const onClick = async () => {
-  console.log(inputText.value);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const copyToPinValue = (data: any) => {
+  name.value = inputText.value;
+  inputText.value = "";
+  const location = data.results[0].geometry.location;
+  latitude.value = location.lat;
+  longitude.value = location.lng;
+};
+
+const search = async () => {
+  const url = "https://maps.googleapis.com/maps/api/geocode/json";
   loading.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  const res = await fetch(
+    `${url}?address=${inputText.value}&key=${process.env.VUE_APP_MAPS_API_KEY}`
+  );
+  const data = await res.json();
+  console.log(data);
+  if (data.status === "OK") copyToPinValue(data);
   loading.value = false;
 };
 
@@ -35,6 +49,7 @@ const onRegister = () => {
   console.log("Latitude:", latitude.value);
   console.log("Longitude:", longitude.value);
   console.log("Type:", type.value);
+  console.log("SearchText:", inputText.value);
 };
 </script>
 
@@ -46,7 +61,7 @@ const onRegister = () => {
     </v-col>
     <v-col cols="4" class="mt-4">
       <!-- 検索用テキストフィールド -->
-      <SearchField :modelValue="inputText" :loading="loading" :func="onClick" />
+      <SearchField v-model="inputText" :loading="loading" :func="search" />
       <!-- ピンの要素 -->
       <div class="mx-4 mt-12 mb-16">
         <TextField label="名前" v-model="name" />
