@@ -10,7 +10,7 @@ export interface Pin {
   name: string;
   group: string;
   color?: ColorCode;
-  position: { lat: number; lng: number };
+  position?: { lat: number; lng: number };
 }
 
 export interface DynamoDbItem {

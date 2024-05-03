@@ -14,9 +14,9 @@ const updateParentPin = (value: Pin) => emit("update:parentPin", value);
 let pin: Pin = {
   id: "",
   name: "",
-  group: "",
+  group: "赤",
   color: "red" as ColorCode,
-  position: { lat: 0, lng: 0 },
+  position: undefined,
 };
 let map: google.maps.Map;
 let markers: google.maps.marker.AdvancedMarkerElement[] = [];
