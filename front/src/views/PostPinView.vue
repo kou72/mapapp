@@ -17,6 +17,7 @@ const pin = ref<Pin>({
 });
 const searchInput = ref("");
 const loading = ref(false);
+// DraggableMarkerPlacementMapからexportされたsetPin()を取得する
 const mapRef = ref();
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,6 +31,7 @@ const setPinValue = (data: any) => {
     position: { lat: location.lat, lng: location.lng },
   };
   pin.value = newPin;
+  // 子コンポーネントのsetPin()を呼び出す
   mapRef.value.setPin(newPin);
 };
 
