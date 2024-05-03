@@ -63,7 +63,7 @@ const setPin = async (newPin: Pin) => {
   map.panTo(pin.position);
 };
 
-// setPinを親コンポーネントからpin発火できるようにexportする
+// setPinを親コンポーネントからpin発火できるようにexposeする
 defineExpose({ setPin });
 
 const setClickPositionPin = async (e: google.maps.MapMouseEvent) => {
