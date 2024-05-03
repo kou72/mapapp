@@ -1,33 +1,25 @@
 <script setup lang="ts">
 /*global google*/
 /*eslint no-undef: "error"*/
-import { defineProps, PropType, onMounted, onUpdated, defineEmits } from "vue";
-import { Loader } from "@googlemaps/js-api-loader";
+
+import { onMounted, defineEmits, defineExpose } from "vue";
 import { Center, Pin, ColorCode } from "@/types/map-interfaces";
 import { customPinsColor } from "@/utils/customPinsColor";
-
-const props = defineProps({
-  pin: { type: Object as PropType<Pin>, required: false },
-});
+import { loadeGoogleMapsLibrary } from "@/utils/loadeGoogleMapsLibrary";
 
 // pinの値が変更されたときに親コンポーネントに通知する
-const emit = defineEmits(["update:pin"]);
-const updateValue = (value: Pin) => emit("update:pin", value);
+const emit = defineEmits(["update:parentPin"]);
+const updateParentPin = (value: Pin) => emit("update:parentPin", value);
 
+let pin: Pin = {
+  id: "",
+  name: "",
+  group: "",
+  color: "red" as ColorCode,
+  position: { lat: 0, lng: 0 },
+};
 let map: google.maps.Map;
 let markers: google.maps.marker.AdvancedMarkerElement[] = [];
-
-const loadeGoogleMapsLibrary = async () => {
-  const loader = new Loader({
-    apiKey: process.env.VUE_APP_MAPS_API_KEY,
-    version: "weekly",
-    libraries: ["maps", "marker"],
-  });
-  const { Map } = await loader.importLibrary("maps");
-  const { PinElement } = await loader.importLibrary("marker");
-  const { AdvancedMarkerElement } = await loader.importLibrary("marker");
-  return { Map, PinElement, AdvancedMarkerElement };
-};
 
 const center: Center = { lat: 35.6812362, lng: 139.7645445 };
 const initMap = async () => {
@@ -37,33 +29,28 @@ const initMap = async () => {
     center: center,
     zoom: 12,
     draggableCursor: "default",
-
     // 高度なマーカーを使用するためにmapIdの取得が必要
     mapId: process.env.VUE_APP_MAP_ID,
   });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  map.addListener("click", (e: any) => {
-    const newPin = {
-      id: "",
-      name: "",
-      group: "",
-      color: "red" as ColorCode,
-      position: { lat: e.latLng.lat(), lng: e.latLng.lng() },
-    };
-    console.log(newPin);
-    updateValue(newPin);
-  });
+  // マップをクリックしたときにピンを配置する
+  map.addListener("click", (e: google.maps.MapMouseEvent) =>
+    setEventPositionPin(e)
+  );
 };
 
-const setPin = async () => {
+const setPin = async (newPin: Pin) => {
   const { PinElement, AdvancedMarkerElement } = await loadeGoogleMapsLibrary();
-  if (!props.pin) return;
-  const customPin = new PinElement(customPinsColor(props.pin.color));
+  // ピン情報を更新する。マップ上のイベントでピンを操作するときに使用する
+  pin = newPin;
+  const customPin = new PinElement(customPinsColor(pin.color));
   const marker = new AdvancedMarkerElement({
-    position: props.pin.position,
+    position: pin.position,
     map: map,
     content: customPin.element,
     gmpDraggable: true,
+  });
+  marker.addListener("drag", (e: google.maps.MapMouseEvent) => {
+    updateDraggablePinPosition(e);
   });
   // 必要なピンは1つだけなのでmarkers[]も常に1つだけ
   // 既存のピンがあれば削除する
@@ -74,12 +61,27 @@ const setPin = async () => {
   markers.push(marker);
 };
 
+// setPinを親コンポーネントからpin発火できるようにする
+defineExpose({ setPin });
+
+const setEventPositionPin = async (e: google.maps.MapMouseEvent) => {
+  if (!e.latLng) return;
+  const newPosition = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+  const newPin: Pin = { ...pin, position: newPosition };
+  setPin(newPin);
+  updateParentPin(newPin);
+};
+
+const updateDraggablePinPosition = async (e: google.maps.MapMouseEvent) => {
+  if (!e.latLng) return;
+  const newPosition = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+  const newPin: Pin = { ...pin, position: newPosition };
+  updateParentPin(newPin);
+  pin = newPin;
+};
+
 onMounted(async () => {
   await initMap();
-});
-
-onUpdated(async () => {
-  await setPin();
 });
 </script>
 

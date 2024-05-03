@@ -2,9 +2,9 @@
 /*global google*/
 /*eslint no-undef: "error"*/
 import { defineProps, PropType, onMounted, onUpdated } from "vue";
-import { Loader } from "@googlemaps/js-api-loader";
 import { Center, Pin, PinStream } from "@/types/map-interfaces";
 import { customPinsColor } from "@/utils/customPinsColor";
+import { loadeGoogleMapsLibrary } from "@/utils/loadeGoogleMapsLibrary";
 
 const props = defineProps({
   center: { type: Object as PropType<Center>, required: true },
@@ -14,18 +14,6 @@ const props = defineProps({
 let pins: Pin[] = [];
 let map: google.maps.Map;
 let markers: google.maps.marker.AdvancedMarkerElement[] = [];
-
-const loadeGoogleMapsLibrary = async () => {
-  const loader = new Loader({
-    apiKey: process.env.VUE_APP_MAPS_API_KEY,
-    version: "weekly",
-    libraries: ["maps", "marker"],
-  });
-  const { Map } = await loader.importLibrary("maps");
-  const { PinElement } = await loader.importLibrary("marker");
-  const { AdvancedMarkerElement } = await loader.importLibrary("marker");
-  return { Map, PinElement, AdvancedMarkerElement };
-};
 
 const initMap = async () => {
   const { Map } = await loadeGoogleMapsLibrary();
