@@ -53,11 +53,10 @@ const setMapPin = () => {
 };
 
 const geocode = async () => {
-  const url = "https://maps.googleapis.com/maps/api/geocode/json";
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${searchInput.value}&key=${process.env.VUE_APP_MAPS_API_KEY}`;
   loading.value = true;
-  const res = await fetch(
-    `${url}?address=${searchInput.value}&key=${process.env.VUE_APP_MAPS_API_KEY}`
-  );
+  const res = await fetch(url).catch((err) => console.error(err));
+  if (!res) return;
   const data = await res.json();
   loading.value = false;
   if (data.status !== "OK") return;
