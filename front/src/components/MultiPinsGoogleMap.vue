@@ -55,6 +55,8 @@ const removePin = async (id: string) => {
 };
 
 const insertPin = async (item: Pin) => {
+  // idが重複している場合はスキップする
+  if (pins.some((pin) => pin.id === item.id)) return;
   const { PinElement, AdvancedMarkerElement } = await loadeGoogleMapsLibrary();
   const customPin = new PinElement(customPinsColor(item.color));
   const marker = new AdvancedMarkerElement({
