@@ -50,7 +50,10 @@ onMounted(async () => {
     </v-col>
     <v-col cols="4" class="text-center">
       <FlatButton text="ピンの追加" :func="goAboutPage" class="my-4" />
-      <PinsList :pins="pins"></PinsList>
+      <!-- 高さを制限してスクロールするように -->
+      <div style="height: 80vh" class="overflow-auto">
+        <PinsList :pins="pins" />
+      </div>
     </v-col>
   </v-row>
 </template>
