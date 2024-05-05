@@ -19,7 +19,7 @@ const updateValue = (value: string) => {
   <v-label>{{ props.label }}</v-label>
   <v-select
     :model-value="props.modelValue"
-    :items="['赤', '青', '緑', '黄色']"
+    :items="['赤', '青', '緑', '黄']"
     @update:model-value="updateValue($event)"
     variant="outlined"
     density="compact"

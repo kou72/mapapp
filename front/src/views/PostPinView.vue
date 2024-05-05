@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onUpdated } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { ColorCode, Pin } from "@/types/map-interfaces";
 import DraggableMarkerPlacementMap from "@/components/DraggableMarkerPlacementMap.vue";
@@ -19,10 +19,10 @@ const pin = ref<Pin>({
 });
 const searchInput = ref("");
 const loading = ref(false);
-// コンポーネントからexposeされた関数などを取得する
-const mapRef = ref();
 const router = useRouter();
 const goTopView = () => router.push("/");
+// コンポーネントからexposeされた関数などを取得する
+const mapRef = ref();
 
 const generateId = () => {
   // ランダムな文字列+現在時刻を使用
@@ -34,16 +34,17 @@ const selectColorWithGroup = (group: string) => {
   if (group === "赤") color = "red";
   else if (group === "青") color = "blue";
   else if (group === "緑") color = "green";
-  else if (group === "黄色") color = "yellow";
-  // 未選択の場合は赤色にする
+  else if (group === "黄") color = "yellow";
+  // 指定の文字でない場合は赤色にする
   else color = "red";
   return color;
 };
 
 const setMapPin = () => {
+  const setName = searchInput.value ? searchInput.value : pin.value.name;
   pin.value = {
     id: generateId(),
-    name: searchInput.value,
+    name: setName,
     group: pin.value.group,
     color: selectColorWithGroup(pin.value.group),
     position: pin.value.position,
@@ -67,7 +68,7 @@ const geocode = async () => {
   if (!res) return;
   const data = await res.json();
   loading.value = false;
-  if (data.status !== "OK") return;
+  if (data.status !== "OK") return alert("検索に失敗しました");
   setPinPosition(data.results[0].geometry.location);
   setMapPin();
 };
@@ -89,7 +90,7 @@ const convertPinToDdbItem = (pin: Pin) => {
   return item;
 };
 
-const onRegister = async () => {
+const insertPin = async () => {
   const item = convertPinToDdbItem(pin.value);
   const url = process.env.VUE_APP_REST_API_URL;
   const request = {
@@ -103,10 +104,6 @@ const onRegister = async () => {
   if (!response) return alert("登録に失敗しました");
   goTopView();
 };
-
-onUpdated(() => {
-  console.log("Pin:", pin.value);
-});
 </script>
 
 <template>
@@ -141,8 +138,8 @@ onUpdated(() => {
       </div>
       <!-- ボタン -->
       <v-row justify="end" class="mx-4">
-        <OutlinedButton text="キャンセル" :func="onRegister" class="mr-2" />
-        <FlatButton text="登録" :func="onRegister" class="ml-2" />
+        <OutlinedButton text="キャンセル" :func="goTopView" class="mr-2" />
+        <FlatButton text="登録" :func="insertPin" class="ml-2" />
       </v-row>
     </v-col>
   </v-row>
