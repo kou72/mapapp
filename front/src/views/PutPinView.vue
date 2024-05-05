@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { ColorCode, Pin } from "@/types/map-interfaces";
+import { convertPinToDdbPin } from "@/utils/dynamodbPinConverter";
 import DraggableMarkerPlacementMap from "@/components/DraggableMarkerPlacementMap.vue";
 import SearchField from "@/components/ui/SearchField.vue";
 import TextField from "@/components/ui/TextField.vue";
@@ -10,8 +11,13 @@ import FlatButton from "@/components/ui/FlatButton.vue";
 import OutlinedButton from "@/components/ui/OutlinedButton.vue";
 import "@mdi/font/css/materialdesignicons.css";
 
+const generateId = () => {
+  // ランダムな文字列+現在時刻を使用
+  return Math.random().toString(32).substring(2) + Date.now().toString(32);
+};
+
 const pin = ref<Pin>({
-  id: "",
+  id: generateId(),
   name: "",
   group: "赤",
   color: "red",
@@ -23,11 +29,6 @@ const router = useRouter();
 const goTopView = () => router.push("/");
 // コンポーネントからexposeされた関数などを取得する
 const mapRef = ref();
-
-const generateId = () => {
-  // ランダムな文字列+現在時刻を使用
-  return Math.random().toString(32).substring(2) + Date.now().toString(32);
-};
 
 const selectColorWithGroup = (group: string) => {
   let color: ColorCode;
@@ -43,7 +44,7 @@ const selectColorWithGroup = (group: string) => {
 const setMapPin = () => {
   const setName = searchInput.value ? searchInput.value : pin.value.name;
   pin.value = {
-    id: generateId(),
+    id: pin.value.id,
     name: setName,
     group: pin.value.group,
     color: selectColorWithGroup(pin.value.group),
@@ -73,34 +74,18 @@ const geocode = async () => {
   setMapPin();
 };
 
-const convertPinToDdbItem = (pin: Pin) => {
-  if (!pin.position) return;
-  const item = {
-    id: { S: pin.id },
-    name: { S: pin.name },
-    group: { S: pin.group },
-    color: { S: pin.color },
-    position: {
-      M: {
-        lat: { N: pin.position.lat.toString() },
-        lng: { N: pin.position.lng.toString() },
-      },
-    },
-  };
-  return item;
-};
-
 const insertPin = async () => {
-  const item = convertPinToDdbItem(pin.value);
+  const ddbPin = convertPinToDdbPin(pin.value);
   const url = process.env.VUE_APP_REST_API_URL;
   const request = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(item),
+    body: JSON.stringify(ddbPin),
     // eslint-disable-next-line no-undef
     mode: "no-cors" as RequestMode,
   };
   const response = await fetch(url, request).catch((err) => console.error(err));
+  console.log(response);
   if (!response) return alert("登録に失敗しました");
   goTopView();
 };
@@ -117,7 +102,7 @@ const insertPin = async () => {
       <SearchField v-model="searchInput" :loading="loading" :func="geocode" />
       <!-- ピンの要素 -->
       <div class="mx-4 mt-12 mb-16">
-        <TextField label="名前" v-model="pin.name" />
+        <TextField label="名前" v-model="pin.name" :inputfunc="setMapPin" />
         <v-row class="py-3">
           <v-col cols="6">
             <!-- pin.positionがundefinedの場合はv-modelを使用しない -->

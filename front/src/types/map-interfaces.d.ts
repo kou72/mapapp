@@ -13,7 +13,7 @@ export interface Pin {
   position?: { lat: number; lng: number };
 }
 
-export interface DynamoDbItem {
+export interface DynamoDbPin {
   group: { S: string };
   id: { S: string };
   name: { S: string };

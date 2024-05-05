@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { Center, Pin, DynamoDbItem, PinStream } from "@/types/map-interfaces";
+import { Center, Pin, PinStream } from "@/types/map-interfaces";
+import {
+  converteDdbPinsToPins,
+  converteDdbStreamToPinStream,
+} from "@/utils/dynamodbPinConverter";
 import MultiPinsGoogleMap from "@/components/MultiPinsGoogleMap.vue";
 import FlatButton from "@/components/ui/FlatButton.vue";
 import PinsList from "@/components/PinsList.vue";
@@ -11,45 +15,14 @@ const pins = ref<Pin[]>([]);
 const socket = ref<WebSocket | null>(null);
 const stream = ref<PinStream>();
 const router = useRouter();
-const goAboutPage = () => router.push("/about");
-
-const converteDbItemToPin = (item: DynamoDbItem): Pin => {
-  const pin: Pin = {
-    id: item.id.S,
-    name: item.name.S,
-    group: item.group.S,
-    color: item.color.S,
-    position: {
-      lat: parseFloat(item.position.M.lat.N),
-      lng: parseFloat(item.position.M.lng.N),
-    },
-  };
-  return pin;
-};
-
-const converteDbDataToPinsData = (dynamoDbData: DynamoDbItem[]) => {
-  const data: Pin[] = dynamoDbData.map((item: DynamoDbItem) => {
-    return converteDbItemToPin(item);
-  });
-  return data;
-};
-
-const converteDbStreamToPinStream = (dbStream: MessageEvent) => {
-  const data = JSON.parse(dbStream.data);
-  const pinStream: PinStream = {
-    operation: data.operation,
-    item: data.item ? converteDbItemToPin(data.item) : undefined,
-    id: data.key.id.S,
-  };
-  return pinStream;
-};
+const goAboutPage = () => router.push("/put");
 
 const getPinsData = async () => {
   const url = process.env.VUE_APP_REST_API_URL;
   const res = await fetch(url).catch((err) => console.error(err));
   if (!res) return;
   const dynamoDabData = await res.json();
-  const pinsData = converteDbDataToPinsData(dynamoDabData);
+  const pinsData = converteDdbPinsToPins(dynamoDabData);
   pins.value = pinsData;
 };
 
@@ -59,7 +32,7 @@ const connectWebSocket = () => {
   socket.value.onmessage = (dbStream) => {
     // pinsを上書きして更新するとMAP全体が再描画される
     // 無駄な描画を防ぐため更新要素のみコンポーネントに渡し処理は任せる
-    const pinStream = converteDbStreamToPinStream(dbStream);
+    const pinStream = converteDdbStreamToPinStream(dbStream);
     stream.value = pinStream;
   };
 };
