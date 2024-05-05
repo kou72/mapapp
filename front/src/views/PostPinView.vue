@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onUpdated } from "vue";
+import { useRouter } from "vue-router";
 import { ColorCode, Pin } from "@/types/map-interfaces";
 import DraggableMarkerPlacementMap from "@/components/DraggableMarkerPlacementMap.vue";
 import SearchField from "@/components/ui/SearchField.vue";
@@ -20,6 +21,13 @@ const searchInput = ref("");
 const loading = ref(false);
 // コンポーネントからexposeされた関数などを取得する
 const mapRef = ref();
+const router = useRouter();
+const goTopView = () => router.push("/");
+
+const generateId = () => {
+  // ランダムな文字列+現在時刻を使用
+  return Math.random().toString(32).substring(2) + Date.now().toString(32);
+};
 
 const selectColorWithGroup = (group: string) => {
   let color: ColorCode;
@@ -32,17 +40,9 @@ const selectColorWithGroup = (group: string) => {
   return color;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const setPinPosition = (position: any) => {
-  pin.value.position = {
-    lat: position.lat,
-    lng: position.lng,
-  };
-};
-
 const setMapPin = () => {
   pin.value = {
-    id: "",
+    id: generateId(),
     name: searchInput.value,
     group: pin.value.group,
     color: selectColorWithGroup(pin.value.group),
@@ -50,6 +50,14 @@ const setMapPin = () => {
   };
   // 子コンポーネントのsetPin()を呼び出す
   mapRef.value.setPin(pin.value);
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const setPinPosition = (position: any) => {
+  pin.value.position = {
+    lat: position.lat,
+    lng: position.lng,
+  };
 };
 
 const geocode = async () => {
@@ -64,9 +72,36 @@ const geocode = async () => {
   setMapPin();
 };
 
-const onRegister = () => {
-  // 登録ボタンがクリックされたときの処理
-  console.log("Register:", pin.value);
+const convertPinToDdbItem = (pin: Pin) => {
+  if (!pin.position) return;
+  const item = {
+    id: { S: pin.id },
+    name: { S: pin.name },
+    group: { S: pin.group },
+    color: { S: pin.color },
+    position: {
+      M: {
+        lat: { N: pin.position.lat.toString() },
+        lng: { N: pin.position.lng.toString() },
+      },
+    },
+  };
+  return item;
+};
+
+const onRegister = async () => {
+  const item = convertPinToDdbItem(pin.value);
+  const url = process.env.VUE_APP_REST_API_URL;
+  const request = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(item),
+    // eslint-disable-next-line no-undef
+    mode: "no-cors" as RequestMode,
+  };
+  const response = await fetch(url, request).catch((err) => console.error(err));
+  if (!response) return alert("登録に失敗しました");
+  goTopView();
 };
 
 onUpdated(() => {
