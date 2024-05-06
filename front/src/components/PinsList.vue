@@ -1,8 +1,23 @@
 <script setup lang="ts">
 import { defineProps, PropType } from "vue";
+import { useRouter } from "vue-router";
 import { Pin } from "@/types/map-interfaces";
 import ListSubheader from "@/components/ui/ListSubheader.vue";
 import ListItemWithButtons from "@/components/ui/ListItemWithButtons.vue";
+
+const router = useRouter();
+const toRouteParams = (pin: Pin) => {
+  return {
+    id: pin.id,
+    name: pin.name,
+    group: pin.group,
+    color: pin.color,
+    lat: pin.position?.lat.toString(),
+    lng: pin.position?.lng.toString(),
+  };
+};
+const goPutPinView = (pin: Pin) =>
+  router.push({ name: "modify", params: toRouteParams(pin) });
 
 const props = defineProps({
   pins: Array as PropType<Pin[]>,
@@ -47,6 +62,7 @@ const removePin = async (pinId: string) => {
           :subTitle2="`経度：${pin.position!.lng}`"
           btnIcon1="mdi-pencil"
           btnIcon2="mdi-delete"
+          :func1="() => goPutPinView(pin)"
           :func2="() => removePin(pin.id)"
         />
       </div>

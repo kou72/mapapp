@@ -15,7 +15,13 @@ const pins = ref<Pin[]>([]);
 const socket = ref<WebSocket | null>(null);
 const stream = ref<PinStream>();
 const router = useRouter();
-const goAboutPage = () => router.push("/put");
+
+const generateId = () => {
+  // ランダムな文字列+現在時刻からIDを生成
+  return Math.random().toString(32).substring(2) + Date.now().toString(32);
+};
+const goPutPinView = () =>
+  router.push({ name: "insert", params: { id: generateId() } });
 
 const getPinsData = async () => {
   const url = process.env.VUE_APP_REST_API_URL;
@@ -49,7 +55,7 @@ onMounted(async () => {
       <MultiPinsGoogleMap :center="center" :pins="pins" :stream="stream" />
     </v-col>
     <v-col cols="4" class="text-center">
-      <FlatButton text="ピンの追加" :func="goAboutPage" class="my-4" />
+      <FlatButton text="ピンの追加" :func="goPutPinView" class="my-4" />
       <!-- 高さを制限してスクロールするように -->
       <div style="height: 80vh" class="overflow-auto">
         <PinsList :pins="pins" />

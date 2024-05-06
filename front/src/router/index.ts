@@ -9,9 +9,16 @@ const routes: Array<RouteRecordRaw> = [
     component: TopView,
   },
   {
-    path: "/put",
-    name: "put",
+    path: "/insert/:id",
+    name: "insert",
     component: PutPinView,
+    props: true,
+  },
+  {
+    path: "/modify/:id:name:group:color:lat:lng",
+    name: "modify",
+    component: PutPinView,
+    props: true,
   },
 ];
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, defineProps, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { Pin, Position } from "@/types/map-interfaces";
+import { Pin, ColorCode, Position } from "@/types/map-interfaces";
 import { convertPinToDdbPin } from "@/utils/dynamodbPinConverter";
 import DraggableMarkerPlacementMap from "@/components/DraggableMarkerPlacementMap.vue";
 import SearchField from "@/components/ui/SearchField.vue";
@@ -9,21 +9,23 @@ import PutPinField from "@/components/PutPinField.vue";
 import FlatButton from "@/components/ui/FlatButton.vue";
 import OutlinedButton from "@/components/ui/OutlinedButton.vue";
 
-const generateId = () => {
-  // ランダムな文字列+現在時刻からIDを生成
-  return Math.random().toString(32).substring(2) + Date.now().toString(32);
-};
-
+const router = useRouter();
+const props = defineProps({
+  id: { type: String, required: true },
+  name: { type: String, required: false },
+  group: { type: String, required: false },
+  color: { type: String, required: false },
+  lat: { type: String, required: false },
+  lng: { type: String, required: false },
+});
 const pin = ref<Pin>({
-  id: generateId(),
-  name: "",
-  group: "赤",
-  color: "red",
-  position: undefined,
+  id: props.id,
+  name: props.name || "",
+  group: props.group || "赤",
+  color: (props.color as ColorCode) || "red",
 });
 const searchInput = ref("");
 const loading = ref(false);
-const router = useRouter();
 const goTopView = () => router.push("/");
 // コンポーネントからexposeされた関数を取得する
 const mapRef = ref();
@@ -65,6 +67,16 @@ const insertPin = async () => {
     alert("登録に失敗しました");
   }
 };
+
+onMounted(() => {
+  if (props.lat && props.lng) {
+    pin.value.position = {
+      lat: parseFloat(props.lat),
+      lng: parseFloat(props.lng),
+    };
+    setMapPinPosition();
+  }
+});
 </script>
 
 <template>
