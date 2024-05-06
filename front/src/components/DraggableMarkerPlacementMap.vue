@@ -1,22 +1,27 @@
 <script setup lang="ts">
 /*global google*/
 /*eslint no-undef: "error"*/
-import { onMounted, defineEmits, defineExpose } from "vue";
+import {
+  onMounted,
+  defineEmits,
+  defineExpose,
+  defineProps,
+  PropType,
+} from "vue";
 import { Center, Pin, ColorCode } from "@/types/map-interfaces";
 import { customPinsColor } from "@/utils/customPinsColor";
 import { loadeGoogleMapsLibrary } from "@/utils/loadeGoogleMapsLibrary";
+
+const props = defineProps({
+  parentPin: { type: Object as PropType<Pin>, required: true },
+});
 
 // 親コンポーネントにpinの値の変更を通知するためのemit
 const emit = defineEmits(["update:parentPin"]);
 const updateParentPin = (value: Pin) => emit("update:parentPin", value);
 
-let pin: Pin = {
-  id: "",
-  name: "",
-  group: "赤",
-  color: "red" as ColorCode,
-  position: undefined,
-};
+// eslint-disable-next-line vue/no-setup-props-destructure
+let pin: Pin = props.parentPin;
 let map: google.maps.Map;
 let markers: google.maps.marker.AdvancedMarkerElement[] = [];
 
