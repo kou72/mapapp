@@ -18,6 +18,7 @@ const groupedPins = () => {
 };
 
 const removePin = async (pinId: string) => {
+  if (!confirm("本当に削除しますか？")) return;
   try {
     console.log(`Deleting pin with id: ${pinId}`);
     const url = process.env.VUE_APP_REST_API_URL + "delete";
