@@ -1,30 +1,31 @@
-// REST API の PUT メソッドで発火する Lambda 関数
-// DynamoDB のテーブルにアイテムを追加する
-import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+// REST API の DELETE メソッドで発火する Lambda 関数
+// DynamoDB のテーブルからアイテムを削除する
+import { DynamoDBClient, DeleteItemCommand } from "@aws-sdk/client-dynamodb";
 
 const client = new DynamoDBClient({});
 
-const putItem = async (ddBpin) => {
-  const command = new PutItemCommand({
+const deleteItem = async (id) => {
+  const command = new DeleteItemCommand({
     TableName: "mapapp-db",
-    Item: ddBpin,
+    Key: {
+      id: { S: id },
+    },
   });
   await client.send(command);
 };
 
 export const handler = async (event) => {
   try {
-    const ddBpin = JSON.parse(event.body);
-    await putItem(ddBpin);
-
+    const body = JSON.parse(event.body);
+    await deleteItem(body.id);
     const response = {
       statusCode: 200,
-      body: JSON.stringify({ message: "Created" }),
+      body: JSON.stringify({ message: "Deleted" }),
       headers: { "Access-Control-Allow-Origin": "*" },
     };
     return response;
   } catch (error) {
-    console.error("Error putting item:", error);
+    console.error("Error deleting item:", error);
     const response = {
       statusCode: 500,
       body: JSON.stringify({ message: "Internal Server Error" }),

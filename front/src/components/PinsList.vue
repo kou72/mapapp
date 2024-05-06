@@ -16,6 +16,23 @@ const groupedPins = () => {
   });
   return groups;
 };
+
+const removePin = async (pinId: string) => {
+  try {
+    console.log(`Deleting pin with id: ${pinId}`);
+    const url = process.env.VUE_APP_REST_API_URL + "delete";
+    const request = {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: pinId }),
+    };
+    const response = await fetch(url, request);
+    console.log(response);
+  } catch (err) {
+    console.error(err);
+    alert("削除に失敗しました");
+  }
+};
 </script>
 
 <template>
@@ -29,6 +46,7 @@ const groupedPins = () => {
           :subTitle2="`経度：${pin.position!.lng}`"
           btnIcon1="mdi-pencil"
           btnIcon2="mdi-delete"
+          @delete="removePin(pin.id)"
         />
       </div>
     </div>

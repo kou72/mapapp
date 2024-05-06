@@ -51,13 +51,11 @@ const geocode = async () => {
 const insertPin = async () => {
   try {
     const ddbPin = convertPinToDdbPin(pin.value);
-    const url = process.env.VUE_APP_REST_API_URL;
+    const url = process.env.VUE_APP_REST_API_URL + "put";
     const request = {
-      method: "POST",
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(ddbPin),
-      // eslint-disable-next-line no-undef
-      mode: "no-cors" as RequestMode,
     };
     const response = await fetch(url, request);
     console.log(response);

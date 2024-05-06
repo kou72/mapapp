@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps } from "vue";
+import { defineProps, defineEmits } from "vue";
 defineProps({
   title: { type: String, required: false },
   subTitle1: { type: String, required: false },
@@ -7,6 +7,8 @@ defineProps({
   btnIcon1: { type: String, required: false },
   btnIcon2: { type: String, required: false },
 });
+const emit = defineEmits(["delete"]);
+const onDelete = () => emit("delete");
 </script>
 
 <template>
@@ -30,6 +32,7 @@ defineProps({
         color="light-blue-lighten-2"
         :icon="btnIcon2"
         variant="text"
+        @click="onDelete"
       ></v-btn>
     </template>
   </v-list-item>
