@@ -6,8 +6,7 @@ import SelectField from "@/components/ui/SelectField.vue";
 
 const props = defineProps({
   parentPin: { type: Object as PropType<Pin>, required: true },
-  setPinName: { type: Function, required: true },
-  setPin: { type: Function, required: true },
+  setPinColor: { type: Function, required: true },
 });
 
 // テキストフィールドの値が変更されたときに親コンポーネントに通知する
@@ -26,16 +25,14 @@ const selectColorWithGroup = (group: string) => {
 
 const pinRef = ref(props.parentPin);
 
-const updateValue = () => {
-  const newPin = {
-    id: pinRef.value.id,
-    name: pinRef.value.name,
-    group: pinRef.value.group,
-    color: selectColorWithGroup(pinRef.value.group),
-    position: pinRef.value.position,
-  };
-  emit("update:pin", newPin);
-  props.setPin();
+const setPinName = () => {
+  emit("update:pin", pinRef.value);
+};
+
+const setPinColor = () => {
+  pinRef.value.color = selectColorWithGroup(pinRef.value.group);
+  emit("update:pin", pinRef.value);
+  props.setPinColor();
 };
 
 onUpdated(() => {
@@ -46,11 +43,7 @@ onUpdated(() => {
 <template>
   <!-- ピンの要素 -->
   <div class="mx-4 mt-12 mb-16">
-    <TextField
-      label="名前"
-      v-model="pinRef.name"
-      :inputfunc="props.setPinName"
-    />
+    <TextField label="名前" v-model="pinRef.name" :inputfunc="setPinName" />
     <v-row class="py-3">
       <v-col cols="6">
         <!-- pin.positionがundefinedの場合はv-modelを使用しない -->
@@ -66,7 +59,7 @@ onUpdated(() => {
     <SelectField
       label="グループ"
       v-model="pinRef.group"
-      :selectfunc="updateValue"
+      :selectfunc="setPinColor"
     />
   </div>
 </template>

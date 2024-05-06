@@ -8,20 +8,22 @@ import {
   defineProps,
   PropType,
 } from "vue";
-import { Center, Pin, ColorCode } from "@/types/map-interfaces";
+import { Center, ColorCode, Position } from "@/types/map-interfaces";
 import { customPinsColor } from "@/utils/customPinsColor";
 import { loadeGoogleMapsLibrary } from "@/utils/loadeGoogleMapsLibrary";
 
 const props = defineProps({
-  parentPin: { type: Object as PropType<Pin>, required: true },
+  parentPinPosition: { type: Object as PropType<Position>, required: false },
+  parentPinColor: { type: String as PropType<ColorCode>, required: false },
 });
 
-// 親コンポーネントにpinの値の変更を通知するためのemit
-const emit = defineEmits(["update:parentPin"]);
-const updateParentPin = (value: Pin) => emit("update:parentPin", value);
+// 親コンポーネントにピンの位置の変更を通知するためのemit
+const emit = defineEmits(["update:parentPinPosition"]);
+const updateParentPinPosition = (value: Position) =>
+  emit("update:parentPinPosition", value);
 
 // eslint-disable-next-line vue/no-setup-props-destructure
-let pin: Pin = props.parentPin;
+// let pin: Pin = props.parentPin;
 let map: google.maps.Map;
 let markers: google.maps.marker.AdvancedMarkerElement[] = [];
 
@@ -37,19 +39,15 @@ const initMap = async () => {
     mapId: process.env.VUE_APP_MAP_ID,
   });
   map.addListener("click", (e: google.maps.MapMouseEvent) =>
-    setClickPositionPin(e)
+    placeClickPositionPin(e)
   );
 };
 
-const setPin = async (newPin: Pin) => {
+const updatePin = async (position: Position, color: ColorCode) => {
   const { PinElement, AdvancedMarkerElement } = await loadeGoogleMapsLibrary();
-  // newPinを使っても描画できるが、pinを更新して利用する
-  // マップ側の更新がpin経由で親コンポーネントに通知されるため
-  pin = newPin;
-  if (!pin.position) return;
-  const customPin = new PinElement(customPinsColor(pin.color));
+  const customPin = new PinElement(customPinsColor(color));
   const marker = new AdvancedMarkerElement({
-    position: pin.position,
+    position: position,
     map: map,
     content: customPin.element,
     gmpDraggable: true, // ドラッグ可能にする
@@ -65,27 +63,33 @@ const setPin = async (newPin: Pin) => {
   }
   // markers.pushしなくても描画されるが、マーカー操作に必要なため保存する
   markers.push(marker);
-  map.panTo(pin.position);
+  map.panTo(position);
 };
 
-// setPinを親コンポーネントからpin発火できるようにexposeする
-defineExpose({ setPin });
+const updatePinPosition = async (position: Position) => {
+  if (!props.parentPinColor) return;
+  updatePin(position, props.parentPinColor);
+};
 
-const setClickPositionPin = async (e: google.maps.MapMouseEvent) => {
+const updatePinColor = async (color: ColorCode) => {
+  if (!props.parentPinPosition) return;
+  updatePin(props.parentPinPosition, color);
+};
+
+// 親コンポーネントに関数を公開する
+defineExpose({ updatePinPosition, updatePinColor });
+
+const placeClickPositionPin = async (e: google.maps.MapMouseEvent) => {
   if (!e.latLng) return;
   const newPosition = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-  const newPin: Pin = { ...pin, position: newPosition };
-  setPin(newPin);
-  updateParentPin(newPin);
+  updatePinPosition(newPosition);
+  updateParentPinPosition(newPosition);
 };
 
 const updateDragPinPosition = async (e: google.maps.MapMouseEvent) => {
   if (!e.latLng) return;
   const newPosition = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-  const newPin: Pin = { ...pin, position: newPosition };
-  // pinは更新するがsetPin()はしない。ドラッグ中なのでピンの描画は不要なため
-  pin = newPin;
-  updateParentPin(newPin);
+  updateParentPinPosition(newPosition);
 };
 
 onMounted(async () => {
