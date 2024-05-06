@@ -47,7 +47,7 @@ const removePin = async (pinId: string) => {
           :subTitle2="`経度：${pin.position!.lng}`"
           btnIcon1="mdi-pencil"
           btnIcon2="mdi-delete"
-          @delete="removePin(pin.id)"
+          :func2="() => removePin(pin.id)"
         />
       </div>
     </div>

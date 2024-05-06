@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from "vue";
-defineProps({
+import { defineProps } from "vue";
+const props = defineProps({
   title: { type: String, required: false },
   subTitle1: { type: String, required: false },
   subTitle2: { type: String, required: false },
   btnIcon1: { type: String, required: false },
   btnIcon2: { type: String, required: false },
+  func1: { type: Function, required: false },
+  func2: { type: Function, required: false },
 });
-const emit = defineEmits(["delete"]);
-const onDelete = () => emit("delete");
+const func1 = () => (props.func1 ? props.func1() : null);
+const func2 = () => (props.func2 ? props.func2() : null);
 </script>
 
 <template>
@@ -27,12 +29,13 @@ const onDelete = () => emit("delete");
         color="light-blue-lighten-2"
         :icon="btnIcon1"
         variant="text"
+        @click="func1"
       ></v-btn>
       <v-btn
         color="light-blue-lighten-2"
         :icon="btnIcon2"
         variant="text"
-        @click="onDelete"
+        @click="func2"
       ></v-btn>
     </template>
   </v-list-item>
