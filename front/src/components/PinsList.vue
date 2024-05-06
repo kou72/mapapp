@@ -54,7 +54,7 @@ const removePin = async (pinId: string) => {
 <template>
   <v-list class="rounded">
     <div v-for="(group, groupName) in groupedPins()" :key="groupName">
-      <ListSubheader :text="`タイプ：${groupName}`" />
+      <ListSubheader :text="`グループ：${groupName}`" />
       <div v-for="pin in group" :key="pin.id">
         <ListItemWithButtons
           :title="pin.name"
