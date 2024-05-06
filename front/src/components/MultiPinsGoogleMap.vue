@@ -1,55 +1,19 @@
 <script setup lang="ts">
+/*global google*/
+/*eslint no-undef: "error"*/
 import { defineProps, PropType, onMounted, onUpdated } from "vue";
-import { Loader } from "@googlemaps/js-api-loader";
-import { Center, Pin, ColorCode, PinStream } from "@/types/map-interfaces";
+import { Center, Pin, PinStream } from "@/types/map-interfaces";
+import { customPinsColor } from "@/utils/customPinsColor";
+import { loadeGoogleMapsLibrary } from "@/utils/loadeGoogleMapsLibrary";
 
 const props = defineProps({
   center: { type: Object as PropType<Center>, required: true },
   pins: { type: Array as PropType<Pin[]>, required: true },
   stream: Object as PropType<PinStream>,
 });
-const colorMap = {
-  red: { light: "orangered", dark: "firebrick" },
-  blue: { light: "dodgerblue", dark: "royalblue" },
-  green: { light: "limegreen", dark: "forestgreen" },
-  yellow: { light: "gold", dark: "goldenrod" },
-};
 let pins: Pin[] = [];
-// eslint-disable-next-line
 let map: google.maps.Map;
-// eslint-disable-next-line
 let markers: google.maps.marker.AdvancedMarkerElement[] = [];
-
-// ピンに色を付けるための関数。濃淡の2色を使う
-const customPinColor = (color?: ColorCode) => {
-  const defaultLightColor = colorMap.red.light;
-  const defaultDarkColor = colorMap.red.dark;
-  if (!color) {
-    return {
-      background: defaultLightColor,
-      glyphColor: defaultDarkColor,
-      borderColor: defaultDarkColor,
-    };
-  } else {
-    return {
-      background: colorMap[color].light,
-      glyphColor: colorMap[color].dark,
-      borderColor: colorMap[color].dark,
-    };
-  }
-};
-
-const loadeGoogleMapsLibrary = async () => {
-  const loader = new Loader({
-    apiKey: process.env.VUE_APP_MAPS_API_KEY,
-    version: "weekly",
-    libraries: ["places"],
-  });
-  const { Map } = await loader.importLibrary("maps");
-  const { PinElement } = await loader.importLibrary("marker");
-  const { AdvancedMarkerElement } = await loader.importLibrary("marker");
-  return { Map, PinElement, AdvancedMarkerElement };
-};
 
 const initMap = async () => {
   const { Map } = await loadeGoogleMapsLibrary();
@@ -57,6 +21,7 @@ const initMap = async () => {
   map = new Map(mapElement, {
     center: props.center,
     zoom: 12,
+    draggableCursor: "default",
     // 高度なマーカーを使用するためにmapIdの取得が必要
     mapId: process.env.VUE_APP_MAP_ID,
   });
@@ -66,13 +31,14 @@ const initPins = async () => {
   const { PinElement, AdvancedMarkerElement } = await loadeGoogleMapsLibrary();
   pins = props.pins;
   for (let pin of pins) {
-    const customPin = new PinElement(customPinColor(pin.color));
+    const customPin = new PinElement(customPinsColor(pin.color));
     const marker = new AdvancedMarkerElement({
       position: pin.position,
       map: map,
       content: customPin.element,
     });
-    // マーカーを操作するために保存する。pins[]と2重管理になる
+    // markers.pushしなくても描画されるが、マーカー操作に必要なため保存する
+    // pins[]と整合性が取れるように管理する
     markers.push(marker);
   }
 };
@@ -89,8 +55,10 @@ const removePin = async (id: string) => {
 };
 
 const insertPin = async (item: Pin) => {
+  // idが重複している場合はスキップする
+  if (pins.some((pin) => pin.id === item.id)) return;
   const { PinElement, AdvancedMarkerElement } = await loadeGoogleMapsLibrary();
-  const customPin = new PinElement(customPinColor(item.color));
+  const customPin = new PinElement(customPinsColor(item.color));
   const marker = new AdvancedMarkerElement({
     position: item.position,
     map: map,
@@ -119,7 +87,7 @@ onMounted(async () => {
 });
 
 onUpdated(async () => {
-  // ピンはAPIからフェッチすためonMountedではなくonUpdatedで初期化する
+  // ピンはAPIから取得してくるためonMountedではなくonUpdatedで初期化する
   if (!props.stream) await initPins();
   // ピンの更新がある度にprops.streamを受け取り最小限の範囲で再描画する
   if (props.stream) await updatePins(props.stream);

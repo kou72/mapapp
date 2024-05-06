@@ -5,15 +5,20 @@ export interface Center {
 
 export type ColorCode = "red" | "blue" | "green" | "yellow";
 
+export type Position = {
+  lat: number;
+  lng: number;
+};
+
 export interface Pin {
   id: string;
   name: string;
   group: string;
   color?: ColorCode;
-  position: { lat: number; lng: number };
+  position?: Position;
 }
 
-export interface DynamoDbItem {
+export interface DynamoDbPin {
   group: { S: string };
   id: { S: string };
   name: { S: string };
