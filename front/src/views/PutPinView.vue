@@ -81,9 +81,13 @@ const insertPin = async () => {
     </v-col>
     <v-col cols="4" class="mt-4">
       <!-- 検索用テキストフィールド -->
-      <SearchField v-model="searchInput" :loading="loading" :func="geocode" />
+      <SearchField
+        v-model:searchInput="searchInput"
+        :loading="loading"
+        :clickSearchIcon="geocode"
+      />
       <!-- ピン用テキストフィールド -->
-      <PutPinField v-model:parentPin="pin" :setPinColor="setMapPinColor" />
+      <PutPinField v-model:parentPin="pin" :updateGroupFild="setMapPinColor" />
       <!-- 登録ボタン -->
       <v-row justify="end" class="mx-4">
         <OutlinedButton text="キャンセル" :func="goTopView" class="mr-2" />

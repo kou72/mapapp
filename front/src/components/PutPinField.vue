@@ -6,7 +6,7 @@ import SelectField from "@/components/ui/SelectField.vue";
 
 const props = defineProps({
   parentPin: { type: Object as PropType<Pin>, required: true },
-  setPinColor: { type: Function, required: true },
+  updateGroupFild: { type: Function, required: true },
 });
 
 // テキストフィールドの値が変更されたときに親コンポーネントに通知する
@@ -32,7 +32,7 @@ const setPinName = () => {
 const setPinColor = () => {
   pinRef.value.color = selectColorWithGroup(pinRef.value.group);
   emit("update:pin", pinRef.value);
-  props.setPinColor();
+  props.updateGroupFild();
 };
 
 onUpdated(() => {

@@ -2,21 +2,21 @@
 import { defineProps, defineEmits } from "vue";
 
 const props = defineProps({
-  modelValue: { type: String, required: false },
+  searchInput: { type: String, required: false },
   loading: { type: Boolean, required: false },
-  func: { type: Function, required: false },
+  clickSearchIcon: { type: Function, required: false },
 });
 
 // テキストフィールドの値が変更されたときに親コンポーネントに通知する
-const emit = defineEmits(["update:modelValue"]);
-const updateValue = (value: string) => emit("update:modelValue", value);
+const emit = defineEmits(["update:searchInput"]);
+const updateValue = (value: string) => emit("update:searchInput", value);
 
-const onClick = () => (props.func ? props.func() : null);
+const onClick = () => (props.clickSearchIcon ? props.clickSearchIcon() : null);
 </script>
 
 <template>
   <v-text-field
-    :model-value="props.modelValue"
+    :model-value="props.searchInput"
     @input="updateValue($event.target.value)"
     @keydown.enter="onClick"
     label="マップを検索する"
